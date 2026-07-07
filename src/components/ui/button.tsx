@@ -7,7 +7,7 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children: React.ReactNode;
 };
 
-const StyledButton = styled.button<{
+export const StyledButton = styled.button<{
   $variant: "filled-nude" | "filled-dark" | "outlined" | "text" | "rounded";
 }>`
   padding: 12px 24px;

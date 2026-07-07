@@ -9,13 +9,13 @@ import {
 } from "./header.styles";
 import Logo from "@/components/ui/logo";
 import { useMediaQuery } from "@/hook/mediaquery";
-import MobileNav from "./mobileNav";
 import Link from "next/link";
 import { IoSearchOutline } from "react-icons/io5";
 import { AiOutlineUser } from "react-icons/ai";
 import { SlBag } from "react-icons/sl";
 import { FaBarsStaggered } from "react-icons/fa6";
 import { usePathname } from "next/navigation";
+import MobileNav from "./mobileNav";
 
 const Header = ({
   userRole,
@@ -23,8 +23,15 @@ const Header = ({
   userRole: "admin" | "customer" | undefined;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const isMobile = useMediaQuery("(max-width: 768px)");
+
+  // Close the mobile drawer automatically if the viewport grows past the
+  // mobile breakpoint (e.g. rotating a tablet to landscape).
+  useEffect(() => {
+    if (!isMobile) setIsMenuOpen(false);
+  }, [isMobile]);
 
   function handleMouseEnter() {
     setIsOpen(true);
@@ -63,7 +70,7 @@ const Header = ({
 
         {!isMobile && (
           <StyledActionButtonBox>
-            <button>
+            <button aria-label="Search">
               <IoSearchOutline />
             </button>
 
@@ -71,7 +78,7 @@ const Header = ({
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
-              <button>
+              <button aria-label="Account" aria-haspopup="true" aria-expanded={isOpen}>
                 <AiOutlineUser />
               </button>
               {isOpen && (
@@ -91,18 +98,26 @@ const Header = ({
               )}
             </div>
 
-            <button>
+            <button aria-label="Cart">
               <SlBag />
             </button>
           </StyledActionButtonBox>
         )}
 
         {isMobile && (
-          <button>
+          <button
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
+            onClick={() => setIsMenuOpen(true)}
+          >
             <FaBarsStaggered />
           </button>
         )}
       </HeaderContainer>
+
+      {isMobile && (
+        <MobileNav open={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      )}
     </StyledHeader>
   );
 };

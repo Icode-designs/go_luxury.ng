@@ -22,6 +22,8 @@ export interface ProductVariant {
 export interface Product {
   id: string;
   name: string;
+  category: string;
+  fullDescription: string;
   base_price: number;
   original_price: number | null;
   discounted_price: number | null;

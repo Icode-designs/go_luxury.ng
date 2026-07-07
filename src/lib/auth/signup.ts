@@ -127,7 +127,7 @@ export async function signupAction(
     !returnTo.startsWith("//") &&
     !returnTo.toLowerCase().startsWith("/\\")
       ? returnTo
-      : "/account";
+      : "/";
 
   if (fullName.length < 2 || fullName.length > 80) {
     return {

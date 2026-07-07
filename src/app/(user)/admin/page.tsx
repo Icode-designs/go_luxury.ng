@@ -1,7 +1,8 @@
+import UnderConstruction from "@/components/user/underConstruction";
 import React from "react";
 
 const page = () => {
-  return <div>welcom admin</div>;
+  return <UnderConstruction />;
 };
 
 export default page;

@@ -1,25 +1,29 @@
-import ProductControl from "@/components/user/productControl";
+import { StyledLink } from "@/components/user/products/products.styles";
+import ProductsTable from "@/components/user/products/productsTable";
 import {
   AdminContentBox,
   AdminHeaderBox,
   AdminHeaderInputBox,
 } from "@/components/user/user.styles";
+import { getProductsForAdmin } from "@/lib/products/getProductsForAdmin";
 import React from "react";
+import { FaPlus } from "react-icons/fa6";
 import { IoIosSearch } from "react-icons/io";
 
-const page = () => {
+const page = async () => {
+  const products = await getProductsForAdmin();
   return (
     <AdminContentBox>
       <AdminHeaderBox>
         <h1>Products</h1>
-        <AdminHeaderInputBox>
-          <div>
-            <input type="text" placeholder="search products..." />
-            <IoIosSearch />
-          </div>
-        </AdminHeaderInputBox>
+        <StyledLink href="/admin/products/add-product">
+          <FaPlus />
+          <>Add products</>
+        </StyledLink>
       </AdminHeaderBox>
-      <ProductControl />
+      <div className="content">
+        <ProductsTable initialProducts={products} />
+      </div>
     </AdminContentBox>
   );
 };

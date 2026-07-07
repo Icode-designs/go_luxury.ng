@@ -1,12 +1,16 @@
+"use client";
 import styled from "styled-components";
 
 export const StyledHeader = styled.header`
-  width: 100vw;
+  width: 100%;
   height: fit-content;
   background-color: ${({ theme }) => theme.colors.col000};
   display: flex;
   align-items: center;
   justify-content: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 `;
 
 export const HeaderContainer = styled.div`
@@ -57,7 +61,56 @@ export const LogoBox = styled.div`
   }
 `;
 
-export const StyledMobileNav = styled.nav``;
+export const MobileNavOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1999;
+`;
+
+export const StyledMobileNav = styled.nav<{ $open: boolean }>`
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100dvh;
+  width: min(320px, 85vw);
+  background-color: ${({ theme }) => theme.colors.col000};
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 24px 24px;
+  transform: translateX(${({ $open }) => ($open ? "0" : "100%")});
+  transition: transform 0.25s ease;
+
+  a {
+    padding: 14px 0;
+    border-bottom: 1px solid ${({ theme }) => theme.colors.col020};
+    color: ${({ theme }) => theme.colors.col040};
+    font-size: 14px;
+    letter-spacing: 0.04em;
+
+    &:hover {
+      color: ${({ theme }) => theme.colors.col010};
+    }
+  }
+`;
+
+export const MobileNavHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 8px;
+
+  button {
+    background: none;
+    border: none;
+    color: ${({ theme }) => theme.colors.col040};
+    font-size: 22px;
+    cursor: pointer;
+    padding: 8px;
+  }
+`;
 
 export const StyledActionButtonBox = styled.div`
   position: relative;

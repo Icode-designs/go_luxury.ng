@@ -35,7 +35,7 @@ import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 // Admin session idle timeout: 30 minutes
-const ADMIN_IDLE_TIMEOUT_MS = 30 * 60 * 1000;
+const ADMIN_IDLE_TIMEOUT_MS = 24 * 60 * 60 * 1000;
 
 /**
  * Lightweight admin check for the proxy context.

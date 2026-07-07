@@ -37,13 +37,14 @@ h2{
 
 h3{
     font-family: ${({ theme }) => theme.fonts.fontPrimary};
-    font-size: clamp(0.25rem, 3vw, 0.5rem);
+    font-size: clamp(0.875rem, 2vw, 1rem);
 }
 
 a{
     text-decoration: none;
     color: ${({ theme }) => theme.colors.col040};
     font-size: 14px;
+    cursor: pointer;
 }
 
 input, textarea, select{
@@ -53,6 +54,7 @@ input, textarea, select{
 button{
     background: none;
     border: none;
+    cursor: pointer;
 }
 `;
 

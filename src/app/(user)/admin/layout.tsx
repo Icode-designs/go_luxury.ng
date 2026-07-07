@@ -10,15 +10,18 @@ import Logo from "@/components/ui/logo";
 import React from "react";
 
 import { FaPowerOff } from "react-icons/fa6";
+import Link from "next/link";
 
 const layout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <MainViewPort>
       <Sidebar>
-        <AdminLogoBox>
-          <Logo variant="large" />
-          <h3>INTERNAL MANAGEMENT</h3>
-        </AdminLogoBox>
+        <Link href="/">
+          <AdminLogoBox>
+            <Logo variant="large" />
+            <h3>INTERNAL MANAGEMENT</h3>
+          </AdminLogoBox>
+        </Link>
 
         <SidebarNavComponent />
 

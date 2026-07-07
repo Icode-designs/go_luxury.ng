@@ -1,11 +1,13 @@
 "use client";
 import styled from "styled-components";
+import { StyledButton } from "../ui/button";
 
 export const MainViewPort = styled.main`
   width: 100vw;
   height: 100vh;
   overflow: hidden;
   display: flex;
+  min-width: 768px;
 `;
 
 export const AdminLogoBox = styled.div`
@@ -45,6 +47,7 @@ export const SideBarNav = styled.nav`
     svg,
     p {
       color: ${({ theme }) => theme.colors.col040};
+      text-transform: capitalize;
     }
 
     &.active {
@@ -81,9 +84,11 @@ export const AdminHeaderBox = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: absolute;
+  position: sticky;
   top: 0;
   left: 0;
+  z-index: 1000;
+  box-shadow: 6px 0px 4px rgba(0, 0, 0, 0.1);
 
   h1 {
     font-family: ${({ theme }) => theme.fonts.fontPrimary};
@@ -97,11 +102,15 @@ export const AdminContentBox = styled.div`
   position: relative;
   width: 100%;
   height: 100vh;
-  padding: 50px 24px;
-  padding-top: 100px;
   background-color: ${({ theme }) => theme.colors.col100};
   overflow: auto;
   scrollbar-width: thin;
+
+  .content {
+    padding: 50px 24px;
+    display: grid;
+    gap: 24px;
+  }
 `;
 
 export const AdminHeaderInputBox = styled.div`
@@ -115,7 +124,7 @@ export const AdminHeaderInputBox = styled.div`
       border: 1px solid ${({ theme }) => theme.colors.col031};
       padding-right: 32px;
       border-radius: 8px;
-      width: 270px;
+      width: 450px;
       &:focus {
         ${({ theme }) => theme.colors.col010}
       }
@@ -130,30 +139,13 @@ export const AdminHeaderInputBox = styled.div`
   }
 `;
 
-export const ProductForm = styled.form`
+export const StyledSelect = styled.select`
+  border: ${({ theme }) => theme.colors.col033} 1px solid;
   width: 100%;
-  background-color: transparent;
-  height: fit-content;
-  display: grid;
-  gap: 24px;
+  padding: 14px 16px;
+  align-self: flex-end;
 
-  fieldset {
-    background-color: ${({ theme }) => theme.colors.col040};
-    padding: 24px;
-    border-radius: 12px;
-    display: grid;
-    gap: 24px;
-    width: 100%;
-    height: fit-content;
-
-    > div {
-      width: 100%;
-      &:first-of-type {
-        padding-bottom: 16px;
-        border-bottom: 1px ${({ theme }) => theme.colors.col033} solid;
-        font-family: ${({ theme }) => theme.fonts.fontPrimary};
-        text-transform: uppercase;
-      }
-    }
+  &:focus {
+    border-color: ${({ theme }) => theme.colors.col010};
   }
 `;

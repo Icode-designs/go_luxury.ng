@@ -70,7 +70,7 @@ export async function loginAction(
     !returnTo.startsWith("//") &&
     !returnTo.toLowerCase().startsWith("/\\")
       ? returnTo
-      : "/account";
+      : "/";
 
   // // ── 2. Rate limiting — per IP and per email ───────────────────────────
   // const headerStore = await headers();
