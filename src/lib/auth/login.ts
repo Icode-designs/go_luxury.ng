@@ -31,6 +31,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { loginSchema } from "@/lib/validation/auth";
 import { checkRateLimit } from "@/lib/auth/rateLimit";
+import { mergeGuestCartIntoCustomer } from "@/lib/cart/cartActions";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -72,26 +73,26 @@ export async function loginAction(
       ? returnTo
       : "/";
 
-  // // ── 2. Rate limiting — per IP and per email ───────────────────────────
-  // const headerStore = await headers();
-  // const ip =
-  //   headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-  //   headerStore.get("x-real-ip") ??
-  //   "unknown";
+  // ── 2. Rate limiting — per IP and per email ───────────────────────────
+  const headerStore = await headers();
+  const ip =
+    headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    headerStore.get("x-real-ip") ??
+    "unknown";
 
-  // const [ipLimit, emailLimit] = await Promise.all([
-  //   checkRateLimit(`login:ip:${ip}`, 5, 900),        // 5 attempts / 15 min per IP
-  //   checkRateLimit(`login:email:${normalizedEmail}`, 5, 900), // 5 attempts / 15 min per email
-  // ]);
+  const [ipLimit, emailLimit] = await Promise.all([
+    checkRateLimit(`login:ip:${ip}`, 5, 900), // 5 attempts / 15 min per IP
+    checkRateLimit(`login:email:${normalizedEmail}`, 5, 900), // 5 attempts / 15 min per email
+  ]);
 
-  // if (ipLimit.limited || emailLimit.limited) {
-  //   // Return generic error — do not reveal which dimension (IP or email) triggered
-  //   return {
-  //     status: "error",
-  //     message:
-  //       "Too many login attempts. Please wait a few minutes before trying again.",
-  //   };
-  // }
+  if (ipLimit.limited || emailLimit.limited) {
+    // Return generic error — do not reveal which dimension (IP or email) triggered
+    return {
+      status: "error",
+      message:
+        "Too many login attempts. Please wait a few minutes before trying again.",
+    };
+  }
 
   // ── 3. Credential verification via Supabase Auth ──────────────────────
   const supabase = await createClient();
@@ -136,7 +137,24 @@ export async function loginAction(
 
   const isAdmin = adminRow !== null;
 
-  // ── 5. Redirect based on resolved role ───────────────────────────────
+  // ── 5. Merge any guest cart into this customer's cart ─────────────────
+  // Only relevant for customer logins — admins don't have a cart. If the
+  // shopper added items before logging in, this reunites their guest cart
+  // (tracked by an httpOnly session cookie, see lib/cart/cartSession.ts)
+  // with their account so it isn't lost.
+  if (!isAdmin) {
+    const { data: customerRow } = await adminClient
+      .from("customers")
+      .select("id")
+      .eq("auth_user_id", authUserId)
+      .maybeSingle();
+
+    if (customerRow) {
+      await mergeGuestCartIntoCustomer(customerRow.id);
+    }
+  }
+
+  // ── 6. Redirect based on resolved role ───────────────────────────────
   // The returnTo param allows returning to a protected page after login.
   // For admin sessions, always go to the dashboard — ignore returnTo.
   // For customers, honour returnTo (e.g. they were redirected from /checkout)

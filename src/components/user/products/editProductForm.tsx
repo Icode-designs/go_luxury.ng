@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { ProductForm } from "@/components/user/products/products.styles";
 import GeneralInformation from "./generalInformation";
 import ProductMedia from "./productMedia";
-import ProductVariants, { type AttributeRow } from "./productVariants";
+import ProductAttributes, {
+  type AttributeValueRow,
+} from "./productAttributes";
 import { useCategories } from "@/hook/useCategories";
 import { submitProduct } from "@/lib/products/submitProduct";
 import { FlexBox } from "@/styles/components.styled";
@@ -39,10 +41,11 @@ const EditProductForm = ({
   const [discountedPrice, setDiscountedPrice] = useState(
     product.discountedPrice != null ? String(product.discountedPrice) : "",
   );
-  const [attributes, setAttributes] = useState<AttributeRow[]>(
+  const [sku, setSku] = useState(product.sku);
+  const [stockCount, setStockCount] = useState(product.stockCount);
+  const [attributes, setAttributes] = useState<AttributeValueRow[]>(
     product.attributes,
   );
-  const [variantRows, setVariantRows] = useState(product.variantRows);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -65,9 +68,10 @@ const EditProductForm = ({
         fullDescription,
         basePrice: Number(basePrice) || 0,
         discountedPrice: isOnSale ? Number(discountedPrice) || null : null,
+        sku: sku.trim() || null,
+        stockCount: Number(stockCount) || 0,
         status,
         attributes,
-        variantRows,
         mediaFiles: mediaHookRef.current?.getFilesForUpload() ?? [],
         removedImageStorageIds:
           mediaHookRef.current?.getRemovedStorageIds() ?? [],
@@ -131,6 +135,10 @@ const EditProductForm = ({
         onIsOnSaleChange={setIsOnSale}
         discountedPrice={discountedPrice}
         onDiscountedPriceChange={setDiscountedPrice}
+        sku={sku}
+        onSkuChange={setSku}
+        stockCount={stockCount}
+        onStockCountChange={setStockCount}
       />
 
       <ProductMedia
@@ -140,12 +148,10 @@ const EditProductForm = ({
         }}
       />
 
-      <ProductVariants
+      <ProductAttributes
         categoryAttributes={selectedCategory?.attributes ?? []}
         attributes={attributes}
         onAttributesChange={setAttributes}
-        variantRows={variantRows}
-        onVariantRowsChange={setVariantRows}
         isEditing
       />
 

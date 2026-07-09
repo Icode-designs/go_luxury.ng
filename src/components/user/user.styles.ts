@@ -122,9 +122,9 @@ export const AdminHeaderInputBox = styled.div`
     input {
       padding: 8px 16px;
       border: 1px solid ${({ theme }) => theme.colors.col031};
-      padding-right: 32px;
+      padding-right: 45px;
       border-radius: 8px;
-      width: 450px;
+      width: 500px;
       &:focus {
         ${({ theme }) => theme.colors.col010}
       }

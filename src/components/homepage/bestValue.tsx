@@ -11,7 +11,7 @@ const BestValue = () => {
   if (isLoading || products.length === 0) return null;
 
   return (
-    <ProductsSectionAlt>
+    <ProductsSectionAlt id="best-deals">
       <SectionContent>
         <HomeSectionHeader tag="LIMITED TIME" text="Best Value" />
 

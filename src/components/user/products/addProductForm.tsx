@@ -4,7 +4,9 @@ import React, { useState } from "react";
 import { ProductForm } from "@/components/user/products/products.styles";
 import GeneralInformation from "./generalInformation";
 import ProductMedia from "./productMedia";
-import ProductVariants, { type AttributeRow } from "./productVariants";
+import ProductAttributes, {
+  type AttributeValueRow,
+} from "./productAttributes";
 import { useProductMedia } from "@/hook/useProductMedia";
 import { useCategories } from "@/hook/useCategories";
 import { submitProduct } from "@/lib/products/submitProduct";
@@ -25,10 +27,9 @@ const AddProductForm = ({ existingProductId }: AddProductFormProps) => {
   const [basePrice, setBasePrice] = useState("");
   const [isOnSale, setIsOnSale] = useState(false);
   const [discountedPrice, setDiscountedPrice] = useState("");
-  const [attributes, setAttributes] = useState<AttributeRow[]>([]);
-  const [variantRows, setVariantRows] = useState<
-    Record<string, { stock: string; priceOverride: string; sku: string }>
-  >({});
+  const [sku, setSku] = useState("");
+  const [stockCount, setStockCount] = useState("");
+  const [attributes, setAttributes] = useState<AttributeValueRow[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -50,9 +51,10 @@ const AddProductForm = ({ existingProductId }: AddProductFormProps) => {
         fullDescription,
         basePrice: Number(basePrice) || 0,
         discountedPrice: isOnSale ? Number(discountedPrice) || null : null,
+        sku: sku.trim() || null,
+        stockCount: Number(stockCount) || 0,
         status,
         attributes,
-        variantRows,
         mediaFiles: await getFilesForUpload(),
       });
     } catch (err) {
@@ -82,16 +84,18 @@ const AddProductForm = ({ existingProductId }: AddProductFormProps) => {
         onIsOnSaleChange={setIsOnSale}
         discountedPrice={discountedPrice}
         onDiscountedPriceChange={setDiscountedPrice}
+        sku={sku}
+        onSkuChange={setSku}
+        stockCount={stockCount}
+        onStockCountChange={setStockCount}
       />
 
       <ProductMedia />
 
-      <ProductVariants
+      <ProductAttributes
         categoryAttributes={selectedCategory?.attributes ?? []}
         attributes={attributes}
         onAttributesChange={setAttributes}
-        variantRows={variantRows}
-        onVariantRowsChange={setVariantRows}
         isEditing={isEditing}
       />
 

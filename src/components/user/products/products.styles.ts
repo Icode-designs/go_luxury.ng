@@ -433,71 +433,6 @@ export const ProductMediaBox = styled.div`
   }
 `;
 
-export const ProductVariantBox = styled.div`
-  display: flex;
-  gap: 16px;
-  padding: 16px;
-  justify-content: space-between;
-  background-color: ${({ theme }) => theme.colors.col090};
-  border-radius: 8px;
-  border: 1px solid ${({ theme }) => theme.colors.col033};
-`;
-
-export const ProductVariantItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  justify-content: start;
-  > button {
-    transform: translateY(4px);
-  }
-
-  div {
-    width: fit-content;
-
-    h3 {
-      font-size: 12px;
-      font-weight: 500;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-    }
-    position: relative;
-    input {
-      border-radius: 8px;
-      padding: 8px 16px;
-      border: 1px solid ${({ theme }) => theme.colors.col033};
-    }
-    button {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      cursor: pointer;
-      svg {
-        color: ${({ theme }) => theme.colors.col120};
-        font-size: 20px;
-      }
-    }
-    &:nth-of-type(1) {
-      width: fit-content;
-      input {
-        width: 200px;
-      }
-    }
-
-    &:nth-of-type(2) {
-      width: fit-content;
-      div {
-        width: fit-content;
-        input {
-          width: 75px;
-          padding-right: 35px;
-        }
-      }
-    }
-  }
-`;
-
 export const StyledFormBtn = styled(StyledButton)<{
   $color?: string;
   $size?: string;
@@ -532,46 +467,42 @@ export const PriceToggleRow = styled.div`
   }
 `;
 
-export const VariantTableWrap = styled.div`
-  overflow-x: auto;
+// -- Per-product attribute values (replaces the old variant-grid UI) ------
+export const AttributeRowBox = styled.div`
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 12px 16px;
+  background-color: ${({ theme }) => theme.colors.col090};
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.colors.col033};
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
+  > div {
+    width: fit-content;
 
-  thead th {
-    text-align: left;
-    padding: 10px 12px;
-    background-color: ${({ theme }) => theme.colors.col090};
-    font-weight: 500;
-    text-transform: uppercase;
-    font-size: 11px;
-    color: ${({ theme }) => theme.colors.col032};
-  }
-
-  tbody td {
-    padding: 8px 12px;
-    border-bottom: 1px solid ${({ theme }) => theme.colors.col033};
-  }
-
-  input {
-    width: 100%;
-    padding: 6px 10px;
-    border: 1px solid ${({ theme }) => theme.colors.col033};
-    border-radius: 6px;
-    font-size: 13px;
-  }
-
-  button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    svg {
-      font-size: 18px;
-      color: ${({ theme }) => theme.colors.col120};
+    h3 {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      text-transform: uppercase;
     }
+
+    input {
+      border-radius: 8px;
+      padding: 8px 16px;
+      border: 1px solid ${({ theme }) => theme.colors.col033};
+    }
+
+    &:nth-of-type(1) input {
+      width: 200px;
+    }
+
+    &:nth-of-type(2) input {
+      width: 240px;
+    }
+  }
+
+  > button {
+    transform: translateY(-4px);
   }
 `;

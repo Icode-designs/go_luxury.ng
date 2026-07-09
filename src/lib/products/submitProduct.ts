@@ -1,6 +1,11 @@
 // src/lib/products/submitProduct.ts
+//
+// Each product represents itself directly -- there is no variant system.
+// Price, SKU, and stock all live on the product row. Attributes are simple
+// descriptive facts about this one product (label + value), not a menu of
+// options used to generate purchasable combinations.
 import { createClient } from "@/lib/supabase/client";
-import type { AttributeRow } from "@/components/user/products/productVariants";
+import type { AttributeValueRow } from "@/components/user/products/productAttributes";
 
 interface SubmitProductArgs {
   productId?: string;
@@ -9,15 +14,13 @@ interface SubmitProductArgs {
   fullDescription: string;
   basePrice: number;
   discountedPrice: number | null;
+  sku: string | null;
+  stockCount: number;
   status: "draft" | "active";
-  attributes: AttributeRow[];
-  variantRows: Record<
-    string,
-    { stock: string; priceOverride: string; sku: string }
-  >;
+  attributes: AttributeValueRow[];
   mediaFiles: { slotIndex: number; file: File }[];
   /** Storage IDs of previously-uploaded images the admin removed or
-   *  replaced during this edit session — these need to be deleted from
+   *  replaced during this edit session -- these need to be deleted from
    *  Supabase Storage and their product_images rows removed. */
   removedImageStorageIds?: string[];
 }
@@ -37,6 +40,8 @@ export async function submitProduct(args: SubmitProductArgs) {
         description: args.fullDescription,
         base_price: args.basePrice,
         discounted_price: args.discountedPrice,
+        sku: args.sku,
+        stock_count: args.stockCount,
         status: args.status,
       })
       .select("id")
@@ -54,6 +59,8 @@ export async function submitProduct(args: SubmitProductArgs) {
         description: args.fullDescription,
         base_price: args.basePrice,
         discounted_price: args.discountedPrice,
+        sku: args.sku,
+        stock_count: args.stockCount,
         status: args.status,
       })
       .eq("id", productId);
@@ -61,14 +68,14 @@ export async function submitProduct(args: SubmitProductArgs) {
     if (updateError) throw new Error(updateError.message);
   }
 
-  // ── 2. Delete removed images — Storage file + product_images row ────
+  // ── 2. Delete removed images -- Storage file + product_images row ────
   if (args.removedImageStorageIds && args.removedImageStorageIds.length > 0) {
     const { error: removeStorageError } = await supabase.storage
       .from("product-images")
       .remove(args.removedImageStorageIds);
 
     if (removeStorageError) {
-      // Log but don't block the save — an orphaned Storage file is
+      // Log but don't block the save -- an orphaned Storage file is
       // recoverable later; failing the whole product save over it is worse.
       console.error(
         "[submitProduct] failed to remove storage files:",
@@ -119,89 +126,40 @@ export async function submitProduct(args: SubmitProductArgs) {
     });
   }
 
-  // ── 4. Write attributes + options ────────────────────────────────────
-  // (unchanged from before — see known gap noted at the end)
-  const attributeIdByLabel = new Map<string, string>();
+  // ── 4. Replace attribute values ──────────────────────────────────────
+  // Simplest correct approach: delete this product's existing
+  // product_attributes rows and re-insert the current set. There is no
+  // variant/option table depending on these rows anymore, so this is safe
+  // and avoids diffing add/remove/rename by hand.
+  const { error: deleteAttrsError } = await supabase
+    .from("product_attributes")
+    .delete()
+    .eq("product_id", productId);
 
-  for (const attr of args.attributes) {
-    if (!attr.label.trim() || attr.options.length === 0) continue;
-
-    const { data: attrRow, error: attrError } = await supabase
-      .from("product_attributes")
-      .insert({ product_id: productId, label: attr.label })
-      .select("id")
-      .single();
-
-    if (attrError || !attrRow) {
-      console.error(
-        "[submitProduct] attribute insert failed:",
-        attrError?.message,
-      );
-      continue;
-    }
-
-    attributeIdByLabel.set(attr.label, attrRow.id);
-
-    const optionRows = attr.options
-      .filter((opt) => opt.trim())
-      .map((opt) => ({ attribute_id: attrRow.id, value: opt }));
-
-    if (optionRows.length > 0) {
-      await supabase.from("attribute_options").insert(optionRows);
-    }
+  if (deleteAttrsError) {
+    console.error(
+      "[submitProduct] failed to clear existing attributes:",
+      deleteAttrsError.message,
+    );
   }
 
-  // ── 5. Write variants + their option links ───────────────────────────
-  const { data: allOptions } = await supabase
-    .from("attribute_options")
-    .select(
-      "id, value, attribute_id, product_attributes!inner(product_id, label)",
-    )
-    .eq("product_attributes.product_id", productId);
+  const attributeRows = args.attributes
+    .filter((attr) => attr.label.trim() && attr.value.trim())
+    .map((attr) => ({
+      product_id: productId,
+      label: attr.label.trim(),
+      value: attr.value.trim(),
+    }));
 
-  const optionIdFor = (label: string, value: string) =>
-    allOptions?.find(
-      (o: any) => o.product_attributes.label === label && o.value === value,
-    )?.id;
+  if (attributeRows.length > 0) {
+    const { error: insertAttrsError } = await supabase
+      .from("product_attributes")
+      .insert(attributeRows);
 
-  const activeAttrLabels = args.attributes
-    .filter((a) => a.label.trim() && a.options.length > 0)
-    .map((a) => a.label);
-
-  for (const [key, row] of Object.entries(args.variantRows)) {
-    if (!row.stock && !row.sku) continue;
-
-    const comboValues = key.split(" / ");
-
-    const { data: variant, error: variantError } = await supabase
-      .from("product_variants")
-      .insert({
-        product_id: productId,
-        sku: row.sku,
-        price_override: row.priceOverride ? Number(row.priceOverride) : null,
-        stock_count: Number(row.stock) || 0,
-      })
-      .select("id")
-      .single();
-
-    if (variantError || !variant) {
+    if (insertAttrsError) {
       console.error(
-        "[submitProduct] variant insert failed:",
-        variantError?.message,
-      );
-      continue;
-    }
-
-    const optionIds = comboValues
-      .map((val, i) => optionIdFor(activeAttrLabels[i], val))
-      .filter((id): id is string => Boolean(id));
-
-    if (optionIds.length > 0) {
-      await supabase.from("variant_attribute_options").insert(
-        optionIds.map((optionId) => ({
-          variant_id: variant.id,
-          attribute_option_id: optionId,
-        })),
+        "[submitProduct] failed to insert attributes:",
+        insertAttrsError.message,
       );
     }
   }

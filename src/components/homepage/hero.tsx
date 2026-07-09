@@ -28,9 +28,23 @@ const itemVariants = {
   },
 };
 
-const HomeHero = () => {
+interface HomeHeroProps {
+  imageUrl?: string | null;
+  tag?: string;
+  headingMain?: string;
+  headingHighlight?: string;
+  subtext?: string;
+}
+
+const HomeHero = ({
+  imageUrl,
+  tag = "100% AUTHENTIC DONOR HAIR AVAILABLE",
+  headingMain = "Luxury Hair.",
+  headingHighlight = "Worth Every Penny.",
+  subtext = "Ethically sourced · Ships to Nigeria, UK, USA, Canada & Europe.",
+}: HomeHeroProps) => {
   return (
-    <HomeHeroSection>
+    <HomeHeroSection $imageUrl={imageUrl}>
       <HomeHeroContent>
         <motion.div
           variants={containerVariants}
@@ -39,23 +53,23 @@ const HomeHero = () => {
           viewport={{ once: true, amount: 0.4 }}
         >
           <HomeHeroArticle as="div">
-            <motion.h3 variants={itemVariants}>
-              100% AUTHENTIC DONOR HAIR AVAILABLE
-            </motion.h3>
+            <motion.h3 variants={itemVariants}>{tag}</motion.h3>
 
             <motion.h1 variants={itemVariants}>
-              Luxury Hair. <br />
-              <span>Worth Every Penny.</span>
+              {headingMain} <br />
+              <span>{headingHighlight}</span>
             </motion.h1>
 
-            <motion.p variants={itemVariants}>
-              Ethically sourced · Ships to Nigeria, UK, USA, Canada & Europe.
-            </motion.p>
+            <motion.p variants={itemVariants}>{subtext}</motion.p>
 
             <motion.div variants={itemVariants} style={{ width: "100%" }}>
               <FlexBox $width="100%" $gap={20}>
-                <Button variant="filled-nude">Go to Shop</Button>
-                <Button variant="outlined">Go to Blog</Button>
+                <Button variant="filled-nude" href="/shop">
+                  Go to Shop
+                </Button>
+                <Button variant="outlined" href="/blog">
+                  Go to Blog
+                </Button>
               </FlexBox>
             </motion.div>
           </HomeHeroArticle>

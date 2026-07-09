@@ -1,10 +1,24 @@
 "use client";
 import Link from "next/link";
 import { ProductCard } from "./home.styles";
-import type { HomeProduct } from "@/hook/useHomeProducts";
+
+// Structural subset of HomeProduct (and of the shop page's Product type) --
+// only the fields this card actually renders. Kept independent of either
+// source hook's full shape so both the homepage and the shop page can pass
+// their own product objects here without extra fields to satisfy.
+export interface ProductCardData {
+  id: string;
+  name: string;
+  base_price: number;
+  discounted_price: number | null;
+  primaryImageUrl: string | null;
+  isNew: boolean;
+  averageRating: number | null;
+  reviewCount: number;
+}
 
 interface ProductCardItemProps {
-  product: HomeProduct;
+  product: ProductCardData;
   showRating?: boolean;
 }
 
@@ -13,10 +27,6 @@ export function ProductCardItem({
   showRating = false,
 }: ProductCardItemProps) {
   const isOnSale = product.discounted_price !== null;
-  const isVariantRange =
-    product.minVariantPrice !== null &&
-    product.maxVariantPrice !== null &&
-    product.minVariantPrice !== product.maxVariantPrice;
 
   return (
     <Link href={`/product/${product.id}`} passHref legacyBehavior>
@@ -27,7 +37,7 @@ export function ProductCardItem({
           )}
           {!product.isNew && isOnSale && (
             <span className="product-badge badge-sale">
-              −
+              -
               {Math.round(
                 ((product.base_price - product.discounted_price!) /
                   product.base_price) *
@@ -55,17 +65,17 @@ export function ProductCardItem({
           {isOnSale ? (
             <>
               <span className="price-old">
-                ₦{product.base_price.toLocaleString()}
+                {"₦"}
+                {product.base_price.toLocaleString()}
               </span>
-              ₦{product.discounted_price!.toLocaleString()}
-            </>
-          ) : isVariantRange ? (
-            <>
-              <span className="price-range-label">From</span>₦
-              {product.minVariantPrice!.toLocaleString()}
+              {"₦"}
+              {product.discounted_price!.toLocaleString()}
             </>
           ) : (
-            <>₦{product.base_price.toLocaleString()}</>
+            <>
+              {"₦"}
+              {product.base_price.toLocaleString()}
+            </>
           )}
         </div>
       </ProductCard>

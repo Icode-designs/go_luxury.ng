@@ -1,8 +1,27 @@
-import UnderConstruction from "@/components/user/underConstruction";
+import { FaPlus } from "react-icons/fa6";
+import Link from "next/link";
+import { AdminContentBox, AdminHeaderBox } from "@/components/user/user.styles";
+import { StyledLink } from "@/components/user/blog/blog.styles";
+import BlogPostsTable from "@/components/user/blog/blogPostsTable";
+import { getBlogPostsForAdmin } from "@/lib/blog/getBlogPostsForAdmin";
 import React from "react";
 
-const page = () => {
-  return <UnderConstruction />;
+const page = async () => {
+  const posts = await getBlogPostsForAdmin();
+  return (
+    <AdminContentBox>
+      <AdminHeaderBox>
+        <h1>Blog</h1>
+        <StyledLink as={Link} href="/admin/blog/new">
+          <FaPlus />
+          <>New post</>
+        </StyledLink>
+      </AdminHeaderBox>
+      <div className="content">
+        <BlogPostsTable initialPosts={posts} />
+      </div>
+    </AdminContentBox>
+  );
 };
 
 export default page;

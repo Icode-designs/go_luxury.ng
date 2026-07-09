@@ -20,6 +20,10 @@ interface GeneralInformationProps {
   onIsOnSaleChange: (value: boolean) => void;
   discountedPrice: string;
   onDiscountedPriceChange: (value: string) => void;
+  sku: string;
+  onSkuChange: (value: string) => void;
+  stockCount: string;
+  onStockCountChange: (value: string) => void;
 }
 
 const GeneralInformation = ({
@@ -36,6 +40,10 @@ const GeneralInformation = ({
   onIsOnSaleChange,
   discountedPrice,
   onDiscountedPriceChange,
+  sku,
+  onSkuChange,
+  stockCount,
+  onStockCountChange,
 }: GeneralInformationProps) => {
   const { categories, isLoading: categoriesLoading } = useCategories();
 
@@ -106,7 +114,7 @@ const GeneralInformation = ({
 
       {/*
         Base Price is the single source of truth for the product's normal
-        price. There is no separate "original price" field — when a sale is
+        price. There is no separate "original price" field -- when a sale is
         active, this base price IS the original price being discounted from.
         Mirrors the products table constraint:
           discounted_price is null or discounted_price < base_price
@@ -164,6 +172,40 @@ const GeneralInformation = ({
           </InputBox>
         </FlexBox>
       )}
+
+      {/*
+        Each product represents itself directly -- SKU and stock live on
+        the product row, not on a separate variant. If you need many
+        near-identical items (e.g. the same bundle in different lengths),
+        create each as its own product.
+      */}
+      <FlexBox $justify="space-between" $gap={10} $width="100%">
+        <InputBox>
+          <label htmlFor="sku">SKU (optional)</label>
+          <input
+            type="text"
+            id="sku"
+            name="sku"
+            placeholder="e.g. GLX-BOB-12"
+            value={sku}
+            onChange={(e) => onSkuChange(e.target.value)}
+          />
+        </InputBox>
+
+        <InputBox>
+          <label htmlFor="stockCount">Stock Quantity</label>
+          <input
+            type="number"
+            id="stockCount"
+            name="stockCount"
+            placeholder="0"
+            min="0"
+            step="1"
+            value={stockCount}
+            onChange={(e) => onStockCountChange(e.target.value)}
+          />
+        </InputBox>
+      </FlexBox>
     </fieldset>
   );
 };

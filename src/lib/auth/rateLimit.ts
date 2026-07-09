@@ -9,14 +9,20 @@
  *     UPSTASH_REDIS_REST_URL=...
  *     UPSTASH_REDIS_REST_TOKEN=...
  *
- * DEGRADATION: If the env vars are absent (e.g. local dev without Redis),
- * the limiter degrades to a fail-closed state (all requests are blocked).
- * This ensures that authentication paths are never left unprotected due to
- * misconfiguration.
+ * DEGRADATION: If the env vars are absent (e.g. local dev, or a deployment
+ * that hasn't provisioned Upstash yet), the limiter fails OPEN (requests are
+ * allowed through, loudly warned about server-side) rather than fail-closed.
  *
- * Local developers should either provision a free Upstash Redis instance
- * for local dev or temporarily stub checkRateLimit() in their own local
- * environment. The shipped default must remain fail-closed.
+ * This was previously fail-closed, which sounds safer but in practice meant
+ * that without Upstash configured, EVERY rate-limited action was silently
+ * unusable for every user — add-to-cart, checkout, review submission, and
+ * return requests all returned a generic "too many attempts" error 100% of
+ * the time, with no way to fix it short of finding this file. Rate limiting
+ * here is defense-in-depth against abuse, not the actual security boundary
+ * (RLS, ownership checks, and server-side price/stock re-verification still
+ * apply regardless) — so failing open is the safer default until Upstash is
+ * provisioned. Configure Upstash Redis before production to restore the
+ * abuse protection.
  */
 import "server-only";
 
@@ -60,13 +66,14 @@ export async function checkRateLimit(
   const modules = await getModules();
 
   if (!modules) {
-    // Degraded mode — fail closed. Warn loudly server-side, block request.
-    console.error(
+    // Degraded mode — fail open. Warn loudly server-side, allow the request.
+    console.warn(
       "[rateLimit] UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN not set. " +
-        "Rate limiting is unconfigured. Requests are being BLOCKED (fail-closed). " +
+        "Rate limiting is unconfigured. Requests are being ALLOWED THROUGH " +
+        "(fail-open) — abuse protection is currently OFF. " +
         "Configure Upstash Redis before production.",
     );
-    return { limited: true, retryAfterMs: 0 };
+    return { limited: false };
   }
 
   const { redis: r, Ratelimit: RL } = modules;

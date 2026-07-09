@@ -7,13 +7,15 @@ import {
   MobileNavOverlay,
   MobileNavHeader,
 } from "./header.styles";
+import { logoutAction } from "@/lib/auth/logout";
 
 interface MobileNavProps {
   open: boolean;
   onClose: () => void;
+  userRole?: "admin" | "customer" | undefined;
 }
 
-const MobileNav = ({ open, onClose }: MobileNavProps) => {
+const MobileNav = ({ open, onClose, userRole }: MobileNavProps) => {
   // Lock body scroll while the drawer is open, and let Escape close it —
   // both are baseline expectations for an accessible mobile menu.
   useEffect(() => {
@@ -51,18 +53,48 @@ const MobileNav = ({ open, onClose }: MobileNavProps) => {
         <Link href="/shop" onClick={onClose}>
           SHOP ALL
         </Link>
-        <Link href="/" onClick={onClose}>
-          WIGS
-        </Link>
-        <Link href="/shop" onClick={onClose}>
-          BUNDLES
-        </Link>
-        <Link href="/shop" onClick={onClose}>
+        <Link href="/#new-arrivals" onClick={onClose}>
           NEW ARRIVALS
         </Link>
-        <Link href="/shop" onClick={onClose}>
-          HAIR CARE
+        <Link href="/#best-deals" onClick={onClose}>
+          BEST DEALS
         </Link>
+        <Link href="/blog" onClick={onClose}>
+          BLOG
+        </Link>
+        {userRole === "admin" && (
+          <>
+            <Link href="/admin" onClick={onClose}>
+              DASHBOARD
+            </Link>
+            <form action={logoutAction}>
+              <button type="submit">LOG OUT</button>
+            </form>
+          </>
+        )}
+        {userRole === "customer" && (
+          <>
+            <Link href="/customer/orders" onClick={onClose}>
+              MY ORDERS
+            </Link>
+            <Link href="/customer/settings" onClick={onClose}>
+              SETTINGS
+            </Link>
+            <form action={logoutAction}>
+              <button type="submit">LOG OUT</button>
+            </form>
+          </>
+        )}
+        {!userRole && (
+          <>
+            <Link href="/login" onClick={onClose}>
+              LOGIN
+            </Link>
+            <Link href="/signup" onClick={onClose}>
+              SIGNUP
+            </Link>
+          </>
+        )}
       </StyledMobileNav>
     </>
   );

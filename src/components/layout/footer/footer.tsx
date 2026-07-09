@@ -63,8 +63,7 @@ const Footer = () => {
         <UsefulLinks>
           <h3>RESOURCES</h3>
           <div>
-            <Link href="">PRIVACY POLICY</Link>
-            <Link href="">TERMS OF SERVICE</Link>
+            <Link href="/terms">TERMS &amp; POLICIES</Link>
             <Link href="">SHIPPING INFO</Link>
             <Link href="">CONTACT US</Link>
           </div>

@@ -1,5 +1,5 @@
 "use client";
-import { useActionState, useTransition } from "react";
+import { useActionState, useTransition, Suspense } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -29,7 +29,7 @@ import { IoEyeOutline } from "react-icons/io5";
 
 const initialState: SignupActionState = { status: "idle" };
 
-const Signup = () => {
+const SignupFormContent = () => {
   const router = useRouter();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
@@ -305,6 +305,20 @@ const Signup = () => {
         </AuthForm>
       </AuthContainer>
     </main>
+  );
+};
+
+const Signup = () => {
+  return (
+    <Suspense
+      fallback={
+        <main>
+          <AuthContainer>Loading...</AuthContainer>
+        </main>
+      }
+    >
+      <SignupFormContent />
+    </Suspense>
   );
 };
 

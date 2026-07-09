@@ -46,7 +46,7 @@ const ProductsTable = ({ initialProducts }: ProductsTableProps) => {
                 <th></th>
                 <th>Product</th>
                 <th>Category</th>
-                <th>Variants</th>
+                <th>Stock</th>
                 <th>Price</th>
                 <th>Status</th>
                 <th></th>

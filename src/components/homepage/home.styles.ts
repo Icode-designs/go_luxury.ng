@@ -10,10 +10,10 @@ import { SectionContent } from "@/styles/components.styled";
 //   1280px+ -> desktop
 // ---------------------------------------------------------------------------
 
-export const HomeHeroSection = styled.section`
+export const HomeHeroSection = styled.section<{ $imageUrl?: string | null }>`
   position: relative;
   width: 100%;
-  background-image: url(${heroBg.src});
+  background-image: url(${({ $imageUrl }) => $imageUrl || heroBg.src});
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -36,13 +36,21 @@ export const HomeHeroSection = styled.section`
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.8) 100%);
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.55) 0%,
+      rgba(0, 0, 0, 0.8) 100%
+    );
     z-index: 1;
   }
 
   @media (min-width: 1280px) {
     &::after {
-      background: linear-gradient(to right, rgba(0, 0, 0, 0.8) 30%, transparent);
+      background: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.8) 30%,
+        transparent
+      );
     }
   }
 `;
@@ -94,7 +102,7 @@ export const HomeHeroArticle = styled.article`
   }
 
   div {
-    button {
+    a {
       width: 100%;
 
       @media (min-width: 480px) {
@@ -557,57 +565,63 @@ export const SaleBanner = styled.div`
 `;
 
 // ---------------------------------------------------------------------------
-// Section 8 — Shop by Occasion
-// (Figma node 279:1820 — new section, not previously implemented)
+// Homepage gallery (masonry-style, exactly 5 images — see
+// getGalleryImages.ts / gallerySettings.tsx)
 // ---------------------------------------------------------------------------
 
-export const OccasionSection = styled.section`
+export const GallerySection = styled.section`
   width: 100%;
-  padding: 48px 16px;
-  background-color: ${({ theme }) => theme.colors.col050};
+  padding: 0 16px;
+  background-color: ${({ theme }) => theme.colors.col040};
 
   @media (min-width: 480px) {
-    padding: 48px 24px;
-  }
-
-  @media (min-width: 1280px) {
-    padding: 80px 24px;
+    padding: 0 24px;
   }
 `;
 
-export const OccasionGrid = styled.div`
+export const GalleryMosaicGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
 
-  @media (min-width: 640px) {
-    grid-template-columns: repeat(2, 1fr);
+  .gallery-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: ${({ theme }) => theme.colors.col090};
+    aspect-ratio: 1 / 1;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    &:hover img {
+      transform: scale(1.05);
+    }
   }
 
-  @media (min-width: 1280px) {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
-`;
-
-export const OccasionCard = styled.a`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  text-align: center;
-  padding: 28px 20px;
-  border: 1px solid rgba(201, 169, 110, 0.2);
-
-  svg {
-    font-size: 24px;
-    color: ${({ theme }) => theme.colors.col010};
+  .gallery-item-large {
+    grid-column: span 2;
+    aspect-ratio: 16 / 10;
   }
 
-  h3 {
-    font-size: 12px;
-    letter-spacing: 0.11em;
-    color: ${({ theme }) => theme.colors.col000};
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 220px);
+    gap: 12px;
+
+    .gallery-item {
+      aspect-ratio: unset;
+      height: 100%;
+    }
+
+    .gallery-item-large {
+      grid-column: span 2;
+      grid-row: span 2;
+      aspect-ratio: unset;
+    }
   }
 `;

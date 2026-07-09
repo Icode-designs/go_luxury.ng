@@ -39,7 +39,9 @@ const ProductRow = ({ product }: ProductRowProps) => {
       <td>{product.category?.name ?? "—"}</td>
 
       <td>
-        {product.variantCount} variant{product.variantCount === 1 ? "" : "s"}
+        {product.stockCount > 0
+          ? `${product.stockCount} in stock`
+          : "Out of stock"}
       </td>
 
       <td>

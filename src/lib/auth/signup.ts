@@ -32,7 +32,8 @@ import DOMPurify from "isomorphic-dompurify";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { signupSchema } from "@/lib/validation/auth";
-// import { checkRateLimit } from "@/lib/auth/rateLimit";
+import { mergeGuestCartIntoCustomer } from "@/lib/cart/cartActions";
+import { checkRateLimit } from "@/lib/auth/rateLimit";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -71,20 +72,20 @@ export async function signupAction(
     return { status: "success" };
   }
 
-  // // ── 2. Rate limiting by IP ─────────────────────────────────────────────
-  // const headerStore = await headers();
-  // const ip =
-  //   headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-  //   headerStore.get("x-real-ip") ??
-  //   "unknown";
+  // ── 2. Rate limiting by IP ─────────────────────────────────────────────
+  const headerStore = await headers();
+  const ip =
+    headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    headerStore.get("x-real-ip") ??
+    "unknown";
 
-  // const rlResult = await checkRateLimit(`signup:ip:${ip}`, 5, 3600); // 5/hour
-  // if (rlResult.limited) {
-  //   return {
-  //     status: "error",
-  //     message: "Too many signup attempts. Please try again later.",
-  //   };
-  // }
+  const rlResult = await checkRateLimit(`signup:ip:${ip}`, 5, 3600); // 5/hour
+  if (rlResult.limited) {
+    return {
+      status: "error",
+      message: "Too many signup attempts. Please try again later.",
+    };
+  }
 
   // ── 3. Server-side re-validation ───────────────────────────────────────
   const rawData = {
@@ -206,6 +207,8 @@ export async function signupAction(
   }
 
   // ── 7a. Guest customer exists → UPDATE to link auth account ───────────
+  let customerId: string;
+
   if (existingCustomer) {
     const { error: updateError } = await adminClient
       .from("customers")
@@ -227,17 +230,25 @@ export async function signupAction(
         message: "Something went wrong. Please try again.",
       };
     }
+    customerId = existingCustomer.id;
   } else {
     // ── 7b. No existing row → INSERT new CUSTOMERS row ──────────────────
-    const { error: insertError } = await adminClient.from("customers").insert({
-      auth_user_id: authUserId,
-      full_name: fullName,
-      email: normalizedEmail,
-      phone: phone ?? null,
-    });
+    const { data: insertedCustomer, error: insertError } = await adminClient
+      .from("customers")
+      .insert({
+        auth_user_id: authUserId,
+        full_name: fullName,
+        email: normalizedEmail,
+        phone: phone ?? null,
+      })
+      .select("id")
+      .single();
 
-    if (insertError) {
-      console.error("[signup] CUSTOMERS insert error:", insertError.message);
+    if (insertError || !insertedCustomer) {
+      console.error(
+        "[signup] CUSTOMERS insert error:",
+        insertError?.message ?? "no row returned",
+      );
       console.error(
         `[signup] CRITICAL: Auth user ${authUserId} created but CUSTOMERS insert failed. Manual remediation required.`,
       );
@@ -246,7 +257,11 @@ export async function signupAction(
         message: "Something went wrong. Please try again.",
       };
     }
+    customerId = insertedCustomer.id;
   }
+
+  // ── 7c. Merge any guest cart (added before this account existed) ──────
+  await mergeGuestCartIntoCustomer(customerId);
 
   if (!authData.session) {
     redirect(`/login?verify=1&returnTo=${encodeURIComponent(safeReturnTo)}`);

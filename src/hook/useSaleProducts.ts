@@ -4,6 +4,15 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { HomeProduct } from "./useHomeProducts";
 
+interface RawSaleProductRow {
+  id: string;
+  name: string;
+  base_price: number;
+  discounted_price: number | null;
+  created_at: string;
+  product_images: { url: string; is_primary: boolean }[] | null;
+}
+
 export function useSaleProducts(limit = 4) {
   const [products, setProducts] = useState<HomeProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -16,19 +25,18 @@ export function useSaleProducts(limit = 4) {
       setIsLoading(true);
       const supabase = createClient();
 
-      const { data, error } = await supabase
+      const result = await supabase
         .from("products")
         .select(
-          `
-          id, name, base_price, discounted_price, created_at,
-          product_images ( url, is_primary ),
-          product_variants ( price_override )
-          `,
+          "id, name, base_price, discounted_price, created_at, product_images ( url, is_primary )",
         )
         .eq("status", "active")
-        .not("discounted_price", "is", null) // ← the actual "on sale" filter
+        .not("discounted_price", "is", null) // -- the actual "on sale" filter
         .order("discounted_price", { ascending: true })
         .limit(limit);
+
+      const data = result.data as unknown as RawSaleProductRow[] | null;
+      const error = result.error;
 
       if (error) {
         console.error("[useSaleProducts] fetch error:", error.message);
@@ -38,13 +46,13 @@ export function useSaleProducts(limit = 4) {
 
       if (!cancelled) {
         const now = Date.now();
-        const mapped: HomeProduct[] = (data ?? []).map((p: any) => {
-          const variantPrices = (p.product_variants ?? [])
-            .map((v: any) => v.price_override)
-            .filter((price: number | null): price is number => price !== null);
-
+        const mapped: HomeProduct[] = (data ?? []).map((p) => {
           const createdMs = new Date(p.created_at).getTime();
           const isNew = (now - createdMs) / (1000 * 60 * 60 * 24) <= 14;
+
+          const primaryImage =
+            (p.product_images ?? []).find((img) => img.is_primary) ??
+            (p.product_images ?? [])[0];
 
           return {
             id: p.id,
@@ -52,18 +60,7 @@ export function useSaleProducts(limit = 4) {
             base_price: p.base_price,
             discounted_price: p.discounted_price,
             created_at: p.created_at,
-            primaryImageUrl:
-              (p.product_images ?? []).find((img: any) => img.is_primary)
-                ?.url ??
-              (p.product_images ?? [])[0]?.url ??
-              null,
-            variantCount: (p.product_variants ?? []).length,
-            minVariantPrice: variantPrices.length
-              ? Math.min(...variantPrices)
-              : null,
-            maxVariantPrice: variantPrices.length
-              ? Math.max(...variantPrices)
-              : null,
+            primaryImageUrl: primaryImage ? primaryImage.url : null,
             isNew,
             averageRating: null,
             reviewCount: 0,

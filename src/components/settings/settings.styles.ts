@@ -225,3 +225,236 @@ export const NewCategoryRow = styled.div`
     border-radius: 8px;
   }
 `;
+
+// ---------------------------------------------------------------------------
+// Settings hub
+// ---------------------------------------------------------------------------
+
+export const SettingsHubGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+`;
+
+export const SettingsHubCard = styled.a`
+  display: grid;
+  gap: 6px;
+  padding: 20px;
+  border: 1px solid ${({ theme }) => theme.colors.col033};
+  border-radius: 12px;
+  background-color: ${({ theme }) => theme.colors.col040};
+  color: inherit;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.col010};
+  }
+
+  svg {
+    font-size: 20px;
+    color: ${({ theme }) => theme.colors.col010};
+    margin-bottom: 4px;
+  }
+
+  h3 {
+    font-size: 14px;
+    color: ${({ theme }) => theme.colors.col000};
+  }
+
+  p {
+    font-size: 12px;
+    color: ${({ theme }) => theme.colors.col032};
+  }
+`;
+
+export const SettingsBackLink = styled.a`
+  display: inline-block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: ${({ theme }) => theme.colors.col032};
+  margin-bottom: 20px;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.col000};
+  }
+`;
+
+// ---------------------------------------------------------------------------
+// Generic image upload tile (used by hero + gallery settings)
+// ---------------------------------------------------------------------------
+
+export const ImageUploadTileWrap = styled.div<{ $size?: number }>`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1.5px dashed ${({ theme }) => theme.colors.col033};
+  border-radius: 8px;
+  width: ${({ $size }) => $size ?? 96}px;
+  height: ${({ $size }) => $size ?? 96}px;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+  outline: none;
+  flex-shrink: 0;
+
+  input[type="file"] {
+    display: none;
+  }
+
+  &.drag-over {
+    border-color: ${({ theme }) => theme.colors.col070};
+    background-color: ${({ theme }) => theme.colors.col090};
+  }
+
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .remove-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: ${({ theme }) => theme.colors.col120};
+    opacity: 0;
+    transition: opacity 0.2s ease;
+
+    svg {
+      font-size: 13px;
+      color: ${({ theme }) => theme.colors.col040};
+    }
+  }
+
+  .replace-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+
+    svg {
+      font-size: 18px;
+      color: ${({ theme }) => theme.colors.col040};
+    }
+    span {
+      font-size: 9px;
+      color: ${({ theme }) => theme.colors.col040};
+      text-transform: uppercase;
+    }
+  }
+
+  &.has-image:hover {
+    .replace-overlay {
+      opacity: 1;
+    }
+    .remove-btn {
+      opacity: 1;
+    }
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    padding: 8px;
+
+    svg {
+      font-size: 22px;
+      color: ${({ theme }) => theme.colors.col032};
+    }
+    .hint-text {
+      font-size: 9px;
+      color: ${({ theme }) => theme.colors.col032};
+      text-align: center;
+      text-transform: uppercase;
+    }
+  }
+`;
+
+export const GallerySlotGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 20px;
+`;
+
+export const GallerySlotBox = styled.div`
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  text-align: center;
+
+  .slot-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: ${({ theme }) => theme.colors.col032};
+  }
+`;
+
+export const SettingsFormBox = styled.div`
+  display: grid;
+  gap: 16px;
+  max-width: 560px;
+
+  label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: ${({ theme }) => theme.colors.col032};
+    margin-bottom: 6px;
+  }
+
+  input[type="text"],
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid ${({ theme }) => theme.colors.col033};
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+
+  textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+
+  button[type="submit"] {
+    justify-self: start;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    background-color: ${({ theme }) => theme.colors.col000};
+    color: ${({ theme }) => theme.colors.col040};
+    font-size: 13px;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+`;

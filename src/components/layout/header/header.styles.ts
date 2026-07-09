@@ -94,6 +94,26 @@ export const StyledMobileNav = styled.nav<{ $open: boolean }>`
       color: ${({ theme }) => theme.colors.col010};
     }
   }
+
+  form {
+    display: contents;
+  }
+
+  button {
+    all: unset;
+    padding: 14px 0;
+    border-bottom: 1px solid ${({ theme }) => theme.colors.col020};
+    color: ${({ theme }) => theme.colors.col040};
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+
+    &:hover {
+      color: ${({ theme }) => theme.colors.col010};
+    }
+  }
 `;
 
 export const MobileNavHeader = styled.div`
@@ -146,4 +166,99 @@ export const StyledModal = styled.div`
       color: ${({ theme }) => theme.colors.col010};
     }
   }
+
+  form {
+    display: contents;
+  }
+
+  button {
+    all: unset;
+    color: ${({ theme }) => theme.colors.col040};
+    cursor: pointer;
+    font: inherit;
+
+    &:hover {
+      color: ${({ theme }) => theme.colors.col010};
+    }
+  }
+`;
+
+export const SearchDropdown = styled.div`
+  position: absolute;
+  position-anchor: --my-trigger;
+  top: anchor(bottom);
+  left: anchor(left);
+  width: max(260px, 100%);
+  z-index: 100;
+  padding: 16px;
+  background-color: ${({ theme }) => theme.colors.col000};
+
+  form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid ${({ theme }) => theme.colors.col020};
+    padding-bottom: 8px;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 14px;
+    font-family: ${({ theme }) => theme.fonts.fontPrimary};
+    color: ${({ theme }) => theme.colors.col010};
+
+    &::placeholder {
+      color: ${({ theme }) => theme.colors.col040};
+    }
+  }
+
+  button {
+    all: unset;
+    display: flex;
+    color: ${({ theme }) => theme.colors.col040};
+    cursor: pointer;
+    font-size: 16px;
+
+    &:hover {
+      color: ${({ theme }) => theme.colors.col010};
+    }
+  }
+`;
+
+// Cart icon + count badge. Visible on both mobile and desktop (unlike the
+// search/account icons, which are desktop-only) since reaching the cart is
+// essential on every breakpoint.
+export const CartLinkBox = styled.a`
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: ${({ theme }) => theme.colors.col040};
+  font-size: 16px;
+  cursor: pointer;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.col010};
+  }
+`;
+
+export const CartCountBadge = styled.span`
+  position: absolute;
+  top: -7px;
+  right: -9px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background-color: ${({ theme }) => theme.colors.col010};
+  color: ${({ theme }) => theme.colors.col000};
+  font-family: ${({ theme }) => theme.fonts.fontPrimary};
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
 `;

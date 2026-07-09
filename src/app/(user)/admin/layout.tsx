@@ -6,30 +6,30 @@ import {
   SidebarActions,
 } from "@/components/user/user.styles";
 import Logo from "@/components/ui/logo";
+import { logoutAction } from "@/lib/auth/logout";
 
 import React from "react";
 
 import { FaPowerOff } from "react-icons/fa6";
-import Link from "next/link";
 
 const layout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <MainViewPort>
       <Sidebar>
-        <Link href="/">
-          <AdminLogoBox>
-            <Logo variant="large" />
-            <h3>INTERNAL MANAGEMENT</h3>
-          </AdminLogoBox>
-        </Link>
+        <AdminLogoBox>
+          <Logo variant="large" />
+          <h3>INTERNAL MANAGEMENT</h3>
+        </AdminLogoBox>
 
         <SidebarNavComponent />
 
         <SidebarActions>
-          <button>
-            <FaPowerOff />
-            <p>Logout</p>
-          </button>
+          <form action={logoutAction}>
+            <button type="submit">
+              <FaPowerOff />
+              <p>Logout</p>
+            </button>
+          </form>
         </SidebarActions>
       </Sidebar>
       {children}

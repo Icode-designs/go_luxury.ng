@@ -16,7 +16,7 @@ const NewArrivals = () => {
   if (isLoading || products.length === 0) return null;
 
   return (
-    <ProductsSection>
+    <ProductsSection id="new-arrivals">
       <SectionContent>
         <ProductsSectionHeaderRow>
           <HomeSectionHeader tag="THE LATEST DROPS" text="New Arrivals" />

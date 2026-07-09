@@ -2,7 +2,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { AttributeRow } from "@/components/user/products/productVariants";
+import type { AttributeValueRow } from "@/components/user/products/productAttributes";
 
 export interface ExistingProductData {
   id: string;
@@ -11,13 +11,37 @@ export interface ExistingProductData {
   fullDescription: string;
   basePrice: number;
   discountedPrice: number | null;
+  sku: string;
+  stockCount: string;
   status: "draft" | "active" | "archived";
-  attributes: AttributeRow[];
-  variantRows: Record<
-    string,
-    { stock: string; priceOverride: string; sku: string }
-  >;
+  attributes: AttributeValueRow[];
   existingImages: { storageId: string; url: string; isPrimary: boolean }[];
+}
+
+interface RawAdminProductAttribute {
+  id: string;
+  label: string;
+  value: string | null;
+}
+
+interface RawAdminProductImage {
+  url: string;
+  storage_id: string;
+  is_primary: boolean;
+}
+
+interface RawAdminProductRow {
+  id: string;
+  name: string;
+  description: string | null;
+  base_price: number;
+  discounted_price: number | null;
+  status: "draft" | "active" | "archived";
+  category_id: string;
+  sku: string | null;
+  stock_count: number | null;
+  product_attributes: RawAdminProductAttribute[] | null;
+  product_images: RawAdminProductImage[] | null;
 }
 
 export function useProduct(productId: string | undefined) {
@@ -35,26 +59,16 @@ export function useProduct(productId: string | undefined) {
     setError(null);
     const supabase = createClient();
 
-    const { data, error: fetchError } = await supabase
+    const result = await supabase
       .from("products")
       .select(
-        `
-        id, name, description, base_price, discounted_price, status, category_id,
-        product_attributes (
-          id, label,
-          attribute_options ( id, value )
-        ),
-        product_images ( url, storage_id, is_primary ),
-        product_variants (
-          id, sku, price_override, stock_count,
-          variant_attribute_options (
-            attribute_options ( value, attribute_id )
-          )
-        )
-        `,
+        "id, name, description, base_price, discounted_price, status, category_id, sku, stock_count, product_attributes ( id, label, value ), product_images ( url, storage_id, is_primary )",
       )
       .eq("id", productId)
       .maybeSingle();
+
+    const data = result.data as unknown as RawAdminProductRow | null;
+    const fetchError = result.error;
 
     if (fetchError || !data) {
       console.error("[useProduct] fetch error:", fetchError?.message);
@@ -63,36 +77,13 @@ export function useProduct(productId: string | undefined) {
       return;
     }
 
-    // Rebuild AttributeRow[] from product_attributes + their options
-    const attributeIdToLabel = new Map<string, string>();
-    const attributes: AttributeRow[] = (data.product_attributes ?? []).map(
-      (attr: any) => {
-        attributeIdToLabel.set(attr.id, attr.label);
-        return {
-          id: attr.id,
-          label: attr.label,
-          options: (attr.attribute_options ?? []).map((o: any) => o.value),
-        };
-      },
+    const attributes: AttributeValueRow[] = (data.product_attributes ?? []).map(
+      (attr) => ({
+        id: attr.id,
+        label: attr.label,
+        value: attr.value ?? "",
+      }),
     );
-
-    // Rebuild variantRows keyed the same way VariantTable/productVariants
-    // generate keys (option values joined by " / "), so existing variants
-    // line up with freshly-generated combinations.
-    const variantRows: ExistingProductData["variantRows"] = {};
-    for (const variant of data.product_variants ?? []) {
-      const comboValues = (variant.variant_attribute_options ?? [])
-        .map((vao: any) => vao.attribute_options?.value)
-        .filter(Boolean);
-
-      const key = comboValues.join(" / ");
-      variantRows[key] = {
-        stock: String(variant.stock_count ?? ""),
-        priceOverride:
-          variant.price_override != null ? String(variant.price_override) : "",
-        sku: variant.sku ?? "",
-      };
-    }
 
     setProduct({
       id: data.id,
@@ -101,10 +92,11 @@ export function useProduct(productId: string | undefined) {
       fullDescription: data.description ?? "",
       basePrice: data.base_price,
       discountedPrice: data.discounted_price,
+      sku: data.sku ?? "",
+      stockCount: String(data.stock_count ?? 0),
       status: data.status,
       attributes,
-      variantRows,
-      existingImages: (data.product_images ?? []).map((img: any) => ({
+      existingImages: (data.product_images ?? []).map((img) => ({
         storageId: img.storage_id,
         url: img.url,
         isPrimary: img.is_primary,

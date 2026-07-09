@@ -1,15 +1,33 @@
 "use client";
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import Link from "next/link";
 
-type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant: "filled-nude" | "filled-dark" | "outlined" | "text" | "rounded";
+type ButtonVariant =
+  | "filled-nude"
+  | "filled-dark"
+  | "outlined"
+  | "text"
+  | "rounded";
+
+type ButtonAsButton = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant: ButtonVariant;
   children: React.ReactNode;
+  href?: undefined;
 };
 
-export const StyledButton = styled.button<{
-  $variant: "filled-nude" | "filled-dark" | "outlined" | "text" | "rounded";
-}>`
+type ButtonAsLink = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+  variant: ButtonVariant;
+  children: React.ReactNode;
+  /** When present, renders as a Next.js Link with the same variant styling. */
+  href: string;
+};
+
+type ButtonProps = ButtonAsButton | ButtonAsLink;
+
+// Shared visual styling for both the <button> and Link renderings — kept as
+// one `css` block so the two never drift out of sync with each other.
+const buttonVariantStyles = css<{ $variant: ButtonVariant }>`
   padding: 12px 24px;
   width: 100%;
   display: flex;
@@ -23,6 +41,7 @@ export const StyledButton = styled.button<{
   font-size: 16px;
   font-weight: 400;
   transition: all 0.3s ease-in-out;
+  text-decoration: none;
   &:hover {
     cursor: pointer;
   }
@@ -80,9 +99,32 @@ export const StyledButton = styled.button<{
   }}
 `;
 
-const Button = ({ children, variant, ...props }: ButtonProps) => {
+export const StyledButton = styled.button<{ $variant: ButtonVariant }>`
+  ${buttonVariantStyles}
+`;
+
+const StyledLinkButton = styled(Link)<{ $variant: ButtonVariant }>`
+  ${buttonVariantStyles}
+`;
+
+const Button = ({ children, variant, href, ...props }: ButtonProps) => {
+  if (href) {
+    return (
+      <StyledLinkButton
+        href={href}
+        $variant={variant}
+        {...(props as Omit<ButtonAsLink, "variant" | "children" | "href">)}
+      >
+        {children}
+      </StyledLinkButton>
+    );
+  }
+
   return (
-    <StyledButton $variant={variant} {...props}>
+    <StyledButton
+      $variant={variant}
+      {...(props as Omit<ButtonAsButton, "variant" | "children" | "href">)}
+    >
       {children}
     </StyledButton>
   );

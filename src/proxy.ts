@@ -53,20 +53,29 @@ async function getSessionAndRole(request: NextRequest): Promise<{
   hasSession: boolean;
   authUserId: string | null;
   isAdmin: boolean;
+  /**
+   * Response object that captured any cookies Supabase tried to set during
+   * this call (e.g. a refreshed access/refresh token pair from
+   * auth.getUser()). Callers MUST copy these onto whichever response they
+   * actually return — otherwise a refreshed session is silently dropped
+   * and the user can get bounced to /login on a technically-valid session.
+   */
+  response: NextResponse;
 }> {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+  // Create a proxy-compatible Supabase client using request cookies
+  const response = NextResponse.next();
+
   if (!supabaseUrl || !supabaseAnonKey || !serviceRoleKey) {
     console.error(
       "[proxy] Missing Supabase env vars — failing closed (deny access).",
     );
-    return { hasSession: false, authUserId: null, isAdmin: false };
+    return { hasSession: false, authUserId: null, isAdmin: false, response };
   }
 
-  // Create a proxy-compatible Supabase client using request cookies
-  const response = NextResponse.next();
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll: () => request.cookies.getAll(),
@@ -84,7 +93,7 @@ async function getSessionAndRole(request: NextRequest): Promise<{
   } = await supabase.auth.getUser();
 
   if (error || !user) {
-    return { hasSession: false, authUserId: null, isAdmin: false };
+    return { hasSession: false, authUserId: null, isAdmin: false, response };
   }
 
   // Query ADMINS table using the service-role client (bypasses RLS)
@@ -102,14 +111,23 @@ async function getSessionAndRole(request: NextRequest): Promise<{
   if (adminErr) {
     console.error("[proxy] ADMINS lookup error:", adminErr.message);
     // Fail closed — deny access on DB error
-    return { hasSession: true, authUserId: user.id, isAdmin: false };
+    return { hasSession: true, authUserId: user.id, isAdmin: false, response };
   }
 
   return {
     hasSession: true,
     authUserId: user.id,
     isAdmin: adminRow !== null,
+    response,
   };
+}
+
+/** Copies any cookies collected on `source` onto `target` in place. */
+function propagateCookies(source: NextResponse, target: NextResponse) {
+  source.cookies.getAll().forEach((cookie) => {
+    target.cookies.set(cookie);
+  });
+  return target;
 }
 
 export async function proxy(request: NextRequest) {
@@ -122,7 +140,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const { hasSession, isAdmin } = await getSessionAndRole(request);
+  const { hasSession, isAdmin, response: authResponse } =
+    await getSessionAndRole(request);
 
   // ── No session at all ─────────────────────────────────────────────────
   if (!hasSession) {
@@ -135,7 +154,7 @@ export async function proxy(request: NextRequest) {
         `${pathname}?${searchParams.toString()}`,
       );
     }
-    return NextResponse.redirect(loginUrl);
+    return propagateCookies(authResponse, NextResponse.redirect(loginUrl));
   }
 
   // ── Session exists but user is NOT an admin ───────────────────────────
@@ -144,7 +163,7 @@ export async function proxy(request: NextRequest) {
   // tier exists and that the right credentials would grant access.
   if (!isAdmin) {
     const loginUrl = new URL("/login", request.url);
-    return NextResponse.redirect(loginUrl);
+    return propagateCookies(authResponse, NextResponse.redirect(loginUrl));
   }
 
   // ── Admin session — check idle timeout ───────────────────────────────
@@ -163,7 +182,10 @@ export async function proxy(request: NextRequest) {
       // but we enforce stricter idle timeout for admin routes here.
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("returnTo", pathname);
-      const redirectResponse = NextResponse.redirect(loginUrl);
+      const redirectResponse = propagateCookies(
+        authResponse,
+        NextResponse.redirect(loginUrl),
+      );
       // Clear the last-active cookie on timeout
       redirectResponse.cookies.delete("gl_admin_last_active");
       return redirectResponse;
@@ -171,7 +193,9 @@ export async function proxy(request: NextRequest) {
   }
 
   // ── Verified admin within idle window — allow through ────────────────
-  const nextResponse = NextResponse.next();
+  // Reuse authResponse as the base so any refreshed auth cookies Supabase
+  // set during getSessionAndRole() actually reach the browser.
+  const nextResponse = authResponse;
 
   // Refresh the last-active timestamp on every successful admin request
   nextResponse.cookies.set("gl_admin_last_active", String(now), {

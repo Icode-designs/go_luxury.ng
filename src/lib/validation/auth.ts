@@ -174,3 +174,97 @@ export const signupSchema = z
   );
 
 export type SignupFormData = z.infer<typeof signupSchema>;
+
+// ---------------------------------------------------------------------------
+// profileSchema — account settings "edit profile" form
+// ---------------------------------------------------------------------------
+export const profileSchema = z.object({
+  fullName: z
+    .string()
+    .min(2, "Full name must be at least 2 characters")
+    .max(80, "Full name must be at most 80 characters")
+    .trim()
+    .refine((val) => !HTML_SCRIPT_PATTERN.test(val), {
+      message: "Full name contains invalid characters",
+    }),
+
+  phone: z
+    .string()
+    .trim()
+    .refine(
+      (val) => {
+        if (val === "") return true; // phone is optional on profile edit
+        const supportedCountries = [
+          "NG",
+          "GB",
+          "US",
+          "CA",
+          "DE",
+          "FR",
+          "IT",
+          "ES",
+          "NL",
+          "BE",
+          "PT",
+          "PL",
+          "SE",
+          "NO",
+          "DK",
+          "FI",
+          "AT",
+          "CH",
+          "IE",
+        ] as const;
+
+        return supportedCountries.some((country) => {
+          try {
+            return isValidPhoneNumber(val, country);
+          } catch {
+            return false;
+          }
+        });
+      },
+      {
+        message:
+          "Please enter a valid phone number (NG, UK, US, CA, or EU format)",
+      },
+    )
+    .optional()
+    .or(z.literal("")),
+});
+
+export type ProfileFormData = z.infer<typeof profileSchema>;
+
+// ---------------------------------------------------------------------------
+// changePasswordSchema — account settings "change password" form
+// ---------------------------------------------------------------------------
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Current password is required"),
+
+    newPassword: z
+      .string()
+      .min(10, "Password must be at least 10 characters")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/[0-9]/, "Password must contain at least one number")
+      .regex(
+        /[^A-Za-z0-9]/,
+        "Password must contain at least one special character",
+      )
+      .refine((val) => !WEAK_PASSWORDS.has(val), {
+        message: "This password is too common. Please choose a stronger one.",
+      }),
+
+    confirmNewPassword: z.string().min(1, "Please confirm your new password"),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: "Passwords do not match",
+    path: ["confirmNewPassword"],
+  })
+  .refine((data) => data.newPassword !== data.currentPassword, {
+    message: "New password must be different from your current password",
+    path: ["newPassword"],
+  });
+
+export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
