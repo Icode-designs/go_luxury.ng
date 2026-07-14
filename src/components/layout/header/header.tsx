@@ -1,23 +1,21 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   HeaderContainer,
   LogoBox,
   StyledActionButtonBox,
   StyledHeader,
   StyledModal,
-  SearchDropdown,
   CartLinkBox,
   CartCountBadge,
 } from "./header.styles";
 import Logo from "@/components/ui/logo";
 import { useMediaQuery } from "@/hook/mediaquery";
 import Link from "next/link";
-import { IoSearchOutline } from "react-icons/io5";
 import { AiOutlineUser } from "react-icons/ai";
 import { SlBag } from "react-icons/sl";
 import { FaBarsStaggered } from "react-icons/fa6";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import MobileNav from "./mobileNav";
 import { logoutAction } from "@/lib/auth/logout";
 
@@ -30,11 +28,7 @@ const Header = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
-  const router = useRouter();
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Close the mobile drawer automatically if the viewport grows past the
@@ -50,29 +44,6 @@ const Header = ({
   function handleMouseLeave() {
     setIsOpen(false);
   }
-
-  function handleToggleSearch() {
-    setIsSearchOpen((open) => !open);
-  }
-
-  function handleSearchSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const q = searchValue.trim();
-    setIsSearchOpen(false);
-    router.push(q ? `/shop?q=${encodeURIComponent(q)}` : "/shop");
-  }
-
-  // Autofocus the input as soon as the dropdown opens, and let Escape close it.
-  useEffect(() => {
-    if (!isSearchOpen) return;
-    searchInputRef.current?.focus();
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsSearchOpen(false);
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isSearchOpen]);
 
   const cartLabel = `Cart, ${cartCount} item${cartCount === 1 ? "" : "s"}`;
 
@@ -99,32 +70,6 @@ const Header = ({
 
         {!isMobile && (
           <StyledActionButtonBox>
-            <button
-              aria-label="Search"
-              aria-haspopup="true"
-              aria-expanded={isSearchOpen}
-              onClick={handleToggleSearch}
-            >
-              <IoSearchOutline />
-            </button>
-            {isSearchOpen && (
-              <SearchDropdown>
-                <form onSubmit={handleSearchSubmit} role="search">
-                  <input
-                    ref={searchInputRef}
-                    type="search"
-                    value={searchValue}
-                    onChange={(e) => setSearchValue(e.target.value)}
-                    placeholder="Search products…"
-                    aria-label="Search products"
-                  />
-                  <button type="submit" aria-label="Submit search">
-                    <IoSearchOutline />
-                  </button>
-                </form>
-              </SearchDropdown>
-            )}
-
             <div
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}

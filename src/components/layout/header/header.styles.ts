@@ -183,54 +183,8 @@ export const StyledModal = styled.div`
   }
 `;
 
-export const SearchDropdown = styled.div`
-  position: absolute;
-  position-anchor: --my-trigger;
-  top: anchor(bottom);
-  left: anchor(left);
-  width: max(260px, 100%);
-  z-index: 100;
-  padding: 16px;
-  background-color: ${({ theme }) => theme.colors.col000};
-
-  form {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid ${({ theme }) => theme.colors.col020};
-    padding-bottom: 8px;
-  }
-
-  input {
-    flex: 1;
-    min-width: 0;
-    border: none;
-    background: none;
-    outline: none;
-    font-size: 14px;
-    font-family: ${({ theme }) => theme.fonts.fontPrimary};
-    color: ${({ theme }) => theme.colors.col010};
-
-    &::placeholder {
-      color: ${({ theme }) => theme.colors.col040};
-    }
-  }
-
-  button {
-    all: unset;
-    display: flex;
-    color: ${({ theme }) => theme.colors.col040};
-    cursor: pointer;
-    font-size: 16px;
-
-    &:hover {
-      color: ${({ theme }) => theme.colors.col010};
-    }
-  }
-`;
-
 // Cart icon + count badge. Visible on both mobile and desktop (unlike the
-// search/account icons, which are desktop-only) since reaching the cart is
+// account icon, which is desktop-only) since reaching the cart is
 // essential on every breakpoint.
 export const CartLinkBox = styled.a`
   position: relative;

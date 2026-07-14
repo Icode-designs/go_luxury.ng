@@ -3,6 +3,7 @@ import { AiFillProduct } from "react-icons/ai";
 import { MdOutlineImage } from "react-icons/md";
 import { BiImages } from "react-icons/bi";
 import { LuFileText } from "react-icons/lu";
+import { FaQuoteLeft } from "react-icons/fa";
 import { AdminContentBox, AdminHeaderBox } from "@/components/user/user.styles";
 import { SettingsHubGrid, SettingsHubCard } from "@/components/settings/settings.styles";
 import React from "react";
@@ -25,6 +26,12 @@ const SETTINGS_SECTIONS = [
     icon: BiImages,
     title: "Homepage Gallery",
     description: "Set the 5 photos shown in the homepage gallery.",
+  },
+  {
+    href: "/admin/setting/testimonials",
+    icon: FaQuoteLeft,
+    title: "Testimonials Panel",
+    description: "Set the stat number, tagline, and hashtag CTA.",
   },
   {
     href: "/admin/setting/terms",

@@ -157,3 +157,126 @@ export const InlineNote = styled.span<{ $variant?: "error" | "success" }>`
         ? "#0F6E56"
         : theme.colors.col032};
 `;
+
+// ---------------------------------------------------------------------------
+// Homepage testimonials management (5 fixed slots — mirrors the gallery's
+// GallerySlotGrid/GallerySlotBox pattern in settings.styles.ts).
+// ---------------------------------------------------------------------------
+
+export const TestimonialSlotGrid = styled.div`
+  display: grid;
+  gap: 16px;
+
+  @media (min-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+`;
+
+export const TestimonialSlotCard = styled.div`
+  background-color: ${({ theme }) => theme.colors.col040};
+  border: 1px solid ${({ theme }) => theme.colors.col033};
+  border-radius: 12px;
+  padding: 20px;
+  display: grid;
+  gap: 12px;
+`;
+
+export const TestimonialSlotHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  .slot-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: ${({ theme }) => theme.colors.col000};
+  }
+`;
+
+export const TestimonialStatusPill = styled.span<{ $isPlaceholder: boolean }>`
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  background-color: ${({ $isPlaceholder }) =>
+    $isPlaceholder ? "#F3F0EC" : "#E1F5EE"};
+  color: ${({ $isPlaceholder }) => ($isPlaceholder ? "#9A8880" : "#0F6E56")};
+`;
+
+export const TestimonialPhotoRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .photo-hint {
+    display: block;
+    font-size: 11px;
+    color: ${({ theme }) => theme.colors.col032};
+    margin-bottom: 4px;
+  }
+`;
+
+export const TestimonialForm = styled.div`
+  display: grid;
+  gap: 10px;
+
+  label {
+    display: grid;
+    gap: 4px;
+    font-size: 12px;
+    color: ${({ theme }) => theme.colors.col032};
+  }
+
+  input,
+  textarea,
+  select {
+    padding: 8px 10px;
+    border: 1px solid ${({ theme }) => theme.colors.col033};
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: ${({ theme }) => theme.fonts.fontPrimary};
+    color: ${({ theme }) => theme.colors.col000};
+    resize: vertical;
+  }
+
+  .row {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+  }
+`;
+
+export const TestimonialSlotActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  button {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid ${({ theme }) => theme.colors.col033};
+    background: none;
+    color: ${({ theme }) => theme.colors.col000};
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  button.save {
+    border-color: ${({ theme }) => theme.colors.col010};
+    color: ${({ theme }) => theme.colors.col010};
+  }
+
+  button.clear {
+    border-color: #93000a;
+    color: #93000a;
+  }
+`;

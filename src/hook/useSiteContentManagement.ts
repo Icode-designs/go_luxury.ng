@@ -17,6 +17,10 @@ export interface ManagedSiteContent {
   heroHeadingHighlight: string;
   heroSubtext: string;
   termsAndPolicies: string;
+  testimonialsStatNumber: string;
+  testimonialsTagline: string;
+  testimonialsHashtag: string;
+  testimonialsInstagramUrl: string;
 }
 
 const EMPTY: ManagedSiteContent = {
@@ -27,6 +31,10 @@ const EMPTY: ManagedSiteContent = {
   heroHeadingHighlight: "",
   heroSubtext: "",
   termsAndPolicies: "",
+  testimonialsStatNumber: "",
+  testimonialsTagline: "",
+  testimonialsHashtag: "",
+  testimonialsInstagramUrl: "",
 };
 
 export function useSiteContentManagement() {
@@ -42,7 +50,7 @@ export function useSiteContentManagement() {
     const { data, error: fetchError } = await supabase
       .from("site_content")
       .select(
-        "hero_image_url, hero_image_storage_id, hero_tag, hero_heading_main, hero_heading_highlight, hero_subtext, terms_and_policies",
+        "hero_image_url, hero_image_storage_id, hero_tag, hero_heading_main, hero_heading_highlight, hero_subtext, terms_and_policies, testimonials_stat_number, testimonials_tagline, testimonials_hashtag, testimonials_instagram_url",
       )
       .eq("id", true)
       .maybeSingle();
@@ -62,6 +70,10 @@ export function useSiteContentManagement() {
       heroHeadingHighlight: data?.hero_heading_highlight ?? "",
       heroSubtext: data?.hero_subtext ?? "",
       termsAndPolicies: data?.terms_and_policies ?? "",
+      testimonialsStatNumber: data?.testimonials_stat_number ?? "",
+      testimonialsTagline: data?.testimonials_tagline ?? "",
+      testimonialsHashtag: data?.testimonials_hashtag ?? "",
+      testimonialsInstagramUrl: data?.testimonials_instagram_url ?? "",
     });
     setIsLoading(false);
   }, []);
@@ -159,6 +171,30 @@ export function useSiteContentManagement() {
     [fetchContent],
   );
 
+  const updateTestimonialsPanel = useCallback(
+    async (fields: {
+      testimonialsStatNumber: string;
+      testimonialsTagline: string;
+      testimonialsHashtag: string;
+      testimonialsInstagramUrl: string;
+    }) => {
+      const supabase = createClient();
+      const { error: updateError } = await supabase
+        .from("site_content")
+        .update({
+          testimonials_stat_number: fields.testimonialsStatNumber || null,
+          testimonials_tagline: fields.testimonialsTagline || null,
+          testimonials_hashtag: fields.testimonialsHashtag || null,
+          testimonials_instagram_url: fields.testimonialsInstagramUrl || null,
+        })
+        .eq("id", true);
+
+      if (updateError) throw new Error(updateError.message);
+      await fetchContent();
+    },
+    [fetchContent],
+  );
+
   return {
     content,
     isLoading,
@@ -168,5 +204,6 @@ export function useSiteContentManagement() {
     setHeroImage,
     removeHeroImage,
     updateTermsAndPolicies,
+    updateTestimonialsPanel,
   };
 }

@@ -1,14 +1,20 @@
-"use client";
 import { SectionContent } from "@/styles/components.styled";
 import { ProductsSection, ProductsGrid } from "./home.styles";
 import HomeSectionHeader from "./homeSectionHeader";
 import { ProductCardItem } from "./productCardItem";
-import { useHomeProducts } from "@/hook/useHomeProducts";
+import type { HomeProduct } from "@/lib/products/getHomeProducts";
 
-const BestRated = () => {
-  const { products, isLoading } = useHomeProducts("best_rated", 4);
+interface BestRatedProps {
+  products: HomeProduct[];
+}
 
-  if (isLoading || products.length === 0) return null;
+// Ranking is computed server-side in getHomeProducts("best_rated", ...):
+// higher average rating first, falling back to newest-first while ratings
+// are still sparse or nonexistent -- so this section always renders regular
+// product cards (with a rating badge once a product has approved reviews)
+// rather than hiding for lack of data.
+const BestRated = ({ products }: BestRatedProps) => {
+  if (products.length === 0) return null;
 
   return (
     <ProductsSection>

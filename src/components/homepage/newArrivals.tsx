@@ -1,4 +1,3 @@
-"use client";
 import Link from "next/link";
 import {
   ProductsSection,
@@ -7,13 +6,15 @@ import {
 } from "./home.styles";
 import HomeSectionHeader from "./homeSectionHeader";
 import { ProductCardItem } from "./productCardItem";
-import { useHomeProducts } from "@/hook/useHomeProducts";
+import type { HomeProduct } from "@/lib/products/getHomeProducts";
 import { SectionContent } from "@/styles/components.styled";
 
-const NewArrivals = () => {
-  const { products, isLoading } = useHomeProducts("newest", 4);
+interface NewArrivalsProps {
+  products: HomeProduct[];
+}
 
-  if (isLoading || products.length === 0) return null;
+const NewArrivals = ({ products }: NewArrivalsProps) => {
+  if (products.length === 0) return null;
 
   return (
     <ProductsSection id="new-arrivals">

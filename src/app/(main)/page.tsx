@@ -9,7 +9,12 @@ import Testimonials from "@/components/homepage/testimonials";
 import TrustBar from "@/components/homepage/trustBar";
 import TrustStats from "@/components/homepage/trustStats";
 import { getSiteContent } from "@/lib/settings/getSiteContent";
-import { getGalleryImages, isGalleryComplete } from "@/lib/settings/getGalleryImages";
+import {
+  getGalleryImages,
+  isGalleryComplete,
+} from "@/lib/settings/getGalleryImages";
+import { getTestimonials } from "@/lib/settings/getTestimonials";
+import { getHomeProducts } from "@/lib/products/getHomeProducts";
 
 // Section order follows the Figma homepage flow (node 279:1537).
 // "Hair Origins" is intentionally not yet implemented — its copy hasn't
@@ -21,9 +26,20 @@ import { getGalleryImages, isGalleryComplete } from "@/lib/settings/getGalleryIm
 // "Shop by Occasion" was removed — it linked to a ?occasion= filter that has
 // no backing column/filter in the product schema, so every link was dead.
 export default async function Home() {
-  const [siteContent, galleryImages] = await Promise.all([
+  const [
+    siteContent,
+    galleryImages,
+    testimonials,
+    newArrivals,
+    bestSellers,
+    bestRated,
+  ] = await Promise.all([
     getSiteContent(),
     getGalleryImages(),
+    getTestimonials(),
+    getHomeProducts("newest", 4),
+    getHomeProducts("best_selling", 4),
+    getHomeProducts("best_rated", 4),
   ]);
 
   return (
@@ -37,13 +53,23 @@ export default async function Home() {
       />
       <TrustBar />
       <HomeCategories />
-      <NewArrivals />
-      <BestSellers />
-      <BestRated />
+      <NewArrivals products={newArrivals} />
+      <BestSellers products={bestSellers} />
+      <BestRated products={bestRated} />
       <BestValue />
-      {isGalleryComplete(galleryImages) && <HomeGallery images={galleryImages} />}
-      <Testimonials />
+      {isGalleryComplete(galleryImages) && (
+        <HomeGallery images={galleryImages} />
+      )}
       <TrustStats />
+      <Testimonials
+        testimonials={testimonials}
+        panel={{
+          testimonialsStatNumber: siteContent.testimonialsStatNumber,
+          testimonialsTagline: siteContent.testimonialsTagline,
+          testimonialsHashtag: siteContent.testimonialsHashtag,
+          testimonialsInstagramUrl: siteContent.testimonialsInstagramUrl,
+        }}
+      />
     </main>
   );
 }

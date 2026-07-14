@@ -1,14 +1,19 @@
-"use client";
 import { SectionContent } from "@/styles/components.styled";
 import { ProductsSectionAlt, ProductsGrid } from "./home.styles";
 import HomeSectionHeader from "./homeSectionHeader";
 import { ProductCardItem } from "./productCardItem";
-import { useHomeProducts } from "@/hook/useHomeProducts";
+import type { HomeProduct } from "@/lib/products/getHomeProducts";
 
-const BestSellers = () => {
-  const { products, isLoading } = useHomeProducts("best_selling", 4);
+interface BestSellersProps {
+  products: HomeProduct[];
+}
 
-  if (isLoading || products.length === 0) return null;
+// Ranking is computed server-side in getHomeProducts("best_selling", ...):
+// higher units sold (from order_items) first, falling back to newest-first
+// while there's no order history yet -- so this section always renders
+// regular product cards rather than hiding for lack of data.
+const BestSellers = ({ products }: BestSellersProps) => {
+  if (products.length === 0) return null;
 
   return (
     <ProductsSectionAlt>

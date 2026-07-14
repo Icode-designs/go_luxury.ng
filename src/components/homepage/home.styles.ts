@@ -346,42 +346,274 @@ export const TestimonialsSection = styled.section`
   }
 `;
 
-export const TestimonialsContent = styled(SectionContent)`
-  > div {
-    &:nth-of-type(1) {
-      h2 {
-        color: ${({ theme }) => theme.colors.col040};
-      }
-    }
-    &:nth-of-type(2) {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 16px;
+// Left info panel (stat/tagline/hashtag CTA) + right photo-card carousel.
+// Stacks on mobile/tablet; becomes a two-column layout at desktop width.
+export const TestimonialsGrid = styled(SectionContent)`
+  display: grid;
+  gap: 32px;
+  padding: 56px 0;
 
-      @media (min-width: 768px) {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
-      }
+  @media (min-width: 768px) {
+    padding: 72px 0;
+  }
+
+  @media (min-width: 1280px) {
+    grid-template-columns: 300px 1fr;
+    gap: 60px;
+    align-items: center;
+    padding: 88px 0;
+  }
+`;
+
+export const TestimonialsPanel = styled.div`
+  display: grid;
+  gap: 16px;
+  text-align: center;
+  justify-items: center;
+
+  @media (min-width: 1280px) {
+    text-align: left;
+    justify-items: start;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: ${({ theme }) => theme.colors.col010};
+  }
+
+  .stat {
+    font-family: ${({ theme }) => theme.fonts.fontSecondary};
+    font-size: 40px;
+    font-weight: 500;
+    line-height: 1.1;
+    color: ${({ theme }) => theme.colors.col040};
+
+    @media (min-width: 768px) {
+      font-size: 52px;
+    }
+
+    @media (min-width: 1280px) {
+      font-size: 44px;
+    }
+  }
+
+  .tagline {
+    font-family: ${({ theme }) => theme.fonts.fontSecondary};
+    font-style: italic;
+    font-size: 16px;
+    color: ${({ theme }) => theme.colors.col033};
+    max-width: 320px;
+
+    @media (min-width: 768px) {
+      font-size: 18px;
+    }
+  }
+
+  .cta-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+
+    @media (min-width: 1280px) {
+      align-items: flex-start;
+    }
+  }
+
+  .hashtag {
+    font-size: 13px;
+    font-weight: 500;
+    color: ${({ theme }) => theme.colors.col010};
+  }
+
+  .cta-button {
+    display: inline-block;
+    padding: 10px 24px;
+    border-radius: 999px;
+    border: 1px solid ${({ theme }) => theme.colors.col040};
+    color: ${({ theme }) => theme.colors.col040};
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+
+    &:hover {
+      background-color: ${({ theme }) => theme.colors.col040};
+      color: ${({ theme }) => theme.colors.col000};
     }
   }
 `;
 
-export const TestimonialArticle = styled.article`
-  border: 1px solid ${({ theme }) => theme.colors.col031};
-  display: grid;
-  gap: 16px;
-  padding: 24px;
+export const TestimonialNavRow = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+`;
 
-  @media (min-width: 768px) {
-    padding: 40px;
+export const TestimonialNavButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid ${({ theme }) => theme.colors.col060};
+  background: none;
+  color: ${({ theme }) => theme.colors.col040};
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+
+  svg {
+    font-size: 14px;
   }
 
-  > div {
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    border-color: ${({ theme }) => theme.colors.col010};
+    color: ${({ theme }) => theme.colors.col010};
+  }
+`;
+
+export const TestimonialsCarouselArea = styled.div`
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+`;
+
+// Horizontal-scroll viewport with snap points -- shows a peek of the next
+// card on mobile and multiple cards side by side on wider screens, matching
+// the reference design's photo-card row rather than a single full-width slide.
+export const TestimonialsCarouselViewport = styled.div`
+  width: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+export const TestimonialsTrack = styled.div`
+  display: flex;
+  gap: 16px;
+  width: max-content;
+
+  @media (min-width: 768px) {
+    gap: 24px;
+  }
+`;
+
+export const TestimonialCard = styled.article`
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+  width: 82vw;
+  max-width: 320px;
+  border: 1px solid ${({ theme }) => theme.colors.col060};
+  border-radius: 16px;
+  padding: 24px;
+  display: grid;
+  gap: 16px;
+  background-color: ${({ theme }) => theme.colors.col020};
+
+  @media (min-width: 768px) {
+    width: 340px;
+    padding: 28px;
+  }
+`;
+
+export const TestimonialCardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  h3 {
+    font-size: 13px;
+    color: ${({ theme }) => theme.colors.col031};
+  }
+`;
+
+export const TestimonialCardPhoto = styled.div`
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: ${({ theme }) => theme.colors.col010};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .monogram {
+    font-family: ${({ theme }) => theme.fonts.fontSecondary};
+    font-size: 18px;
+    color: ${({ theme }) => theme.colors.col000};
+  }
+`;
+
+export const TestimonialCardBody = styled.div`
+  display: grid;
+  gap: 10px;
+
+  p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: ${({ theme }) => theme.colors.col033};
+  }
+
+  .stars {
+    display: flex;
+    gap: 2px;
+
     svg {
-      font-size: 14px;
+      font-size: 13px;
       color: ${({ theme }) => theme.colors.col010};
     }
   }
+`;
+
+export const TestimonialDotsRow = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+
+  @media (min-width: 1280px) {
+    justify-content: flex-start;
+  }
+`;
+
+export const TestimonialDot = styled.button<{ $active: boolean }>`
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background-color: ${({ theme, $active }) =>
+    $active ? theme.colors.col010 : theme.colors.col060};
+  transform: scale(${({ $active }) => ($active ? 1.3 : 1)});
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
 `;
 
 // append to src/components/home/home.styles.ts
