@@ -1,6 +1,5 @@
 "use client";
 import styled from "styled-components";
-import { StyledButton } from "../ui/button";
 
 // ---------------------------------------------------------------------------
 // Admin shell: a fixed-width rail on desktop that can collapse to an icon
