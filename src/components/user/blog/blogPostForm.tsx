@@ -1,8 +1,9 @@
 "use client";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { InputBox } from "@/styles/auth.styles";
 import { FormError, FieldError } from "@/styles/auth-error.styles";
 import Button from "@/components/ui/button";
+import RichTextEditor from "@/components/settings/richTextEditor";
 import {
   submitBlogPostAction,
   type SubmitBlogPostState,
@@ -19,6 +20,11 @@ const initialState: SubmitBlogPostState = { status: "idle" };
 const BlogPostForm = ({ post }: BlogPostFormProps) => {
   const boundAction = submitBlogPostAction.bind(null, post?.id);
   const [state, formAction, isPending] = useActionState(boundAction, initialState);
+  // The rich text editor's surface is contentEditable, not a native form
+  // field -- its HTML is mirrored into this hidden input on every change so
+  // the native <form action={formAction}> submission still picks it up
+  // under name="body", same as every other field here.
+  const [body, setBody] = useState(post?.body ?? "");
 
   const fieldErrors = state.status === "error" ? state.fieldErrors : undefined;
 
@@ -69,12 +75,12 @@ const BlogPostForm = ({ post }: BlogPostFormProps) => {
 
         <InputBox>
           <label htmlFor="body">Body</label>
-          <textarea
+          <input type="hidden" name="body" value={body} />
+          <RichTextEditor
             id="body"
-            name="body"
-            rows={14}
-            required
-            defaultValue={post?.body}
+            value={body}
+            onChange={setBody}
+            placeholder="Write the post here…"
           />
           {fieldErrors?.body && <FieldError>{fieldErrors.body[0]}</FieldError>}
         </InputBox>

@@ -5,12 +5,18 @@
 // is defense in depth on top of the RLS policy.
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeRichText } from "@/lib/richText/sanitizeRichText";
 
 export interface BlogPostDetail {
   id: string;
   title: string;
   excerpt: string;
   coverImageUrl: string | null;
+  /** Sanitized rich-text HTML (safe tag allowlist only) -- render with
+   * dangerouslySetInnerHTML, never as plain text. Sanitized again here on
+   * every read (not just on save in submitBlogPost.ts) so the public post
+   * page stays safe even if the stored value was ever edited directly
+   * outside the admin editor. */
   body: string;
   publishedAt: string;
 }
@@ -37,7 +43,7 @@ export async function getBlogPostById(
     title: data.title,
     excerpt: data.excerpt ?? "",
     coverImageUrl: data.cover_image_url,
-    body: data.body,
+    body: sanitizeRichText(data.body),
     publishedAt: data.published_at ?? data.created_at,
   };
 }

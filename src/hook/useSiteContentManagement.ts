@@ -8,6 +8,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { sanitizeRichText } from "@/lib/richText/sanitizeRichText";
 
 export interface ManagedSiteContent {
   heroImageUrl: string | null;
@@ -162,7 +163,7 @@ export function useSiteContentManagement() {
       const supabase = createClient();
       const { error: updateError } = await supabase
         .from("site_content")
-        .update({ terms_and_policies: text })
+        .update({ terms_and_policies: sanitizeRichText(text) })
         .eq("id", true);
 
       if (updateError) throw new Error(updateError.message);

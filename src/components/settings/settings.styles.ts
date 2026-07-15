@@ -427,6 +427,108 @@ export const GallerySlotBox = styled.div`
   }
 `;
 
+// ---------------------------------------------------------------------------
+// Rich text editor (Terms & Policies)
+// ---------------------------------------------------------------------------
+
+export const RichTextEditorWrap = styled.div`
+  border: 1px solid ${({ theme }) => theme.colors.col033};
+  border-radius: 8px;
+  overflow: hidden;
+`;
+
+export const RichTextToolbar = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 8px;
+  background-color: ${({ theme }) => theme.colors.col090};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.col033};
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 30px;
+    padding: 0 6px;
+    border-radius: 6px;
+    border: none;
+    background: none;
+    color: ${({ theme }) => theme.colors.col000};
+    cursor: pointer;
+    font-size: 15px;
+
+    &:hover {
+      background-color: ${({ theme }) => theme.colors.col100};
+    }
+  }
+
+  button.text-btn {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .divider {
+    width: 1px;
+    height: 20px;
+    background-color: ${({ theme }) => theme.colors.col033};
+    margin: 0 4px;
+  }
+`;
+
+export const RichTextSurface = styled.div`
+  min-height: 320px;
+  max-height: 640px;
+  overflow-y: auto;
+  padding: 16px 18px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: ${({ theme }) => theme.colors.col000};
+  outline: none;
+
+  &:empty::before {
+    content: attr(data-placeholder);
+    color: ${({ theme }) => theme.colors.col032};
+  }
+
+  p {
+    margin-bottom: 12px;
+  }
+
+  h2,
+  h3 {
+    font-family: ${({ theme }) => theme.fonts.fontSecondary};
+    margin: 16px 0 8px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  h3 {
+    font-size: 17px;
+  }
+
+  ul,
+  ol {
+    margin: 0 0 12px 20px;
+  }
+
+  blockquote {
+    margin: 0 0 12px;
+    padding-left: 14px;
+    border-left: 3px solid ${({ theme }) => theme.colors.col010};
+    color: ${({ theme }) => theme.colors.col032};
+  }
+
+  a {
+    color: ${({ theme }) => theme.colors.col010};
+    text-decoration: underline;
+  }
+`;
+
 export const SettingsFormBox = styled.div`
   display: grid;
   gap: 16px;

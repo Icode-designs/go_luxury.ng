@@ -6,6 +6,7 @@
 // defaults if the row is somehow missing, so the homepage never breaks.
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeRichText } from "@/lib/richText/sanitizeRichText";
 
 export interface SiteContent {
   heroImageUrl: string | null;
@@ -13,6 +14,10 @@ export interface SiteContent {
   heroHeadingMain: string;
   heroHeadingHighlight: string;
   heroSubtext: string;
+  /** Sanitized rich-text HTML (safe tag allowlist only) -- render with
+   * dangerouslySetInnerHTML, never as plain text. Sanitized again here on
+   * every read (not just on save) so the public /terms page stays safe even
+   * if the stored value was ever edited directly outside the admin editor. */
   termsAndPolicies: string | null;
   /** Testimonials-section left info panel. The stat number is a specific
    * factual claim (customer count) so it's admin-set only and null hides
@@ -62,7 +67,9 @@ export async function getSiteContent(): Promise<SiteContent> {
     heroHeadingHighlight:
       data.hero_heading_highlight ?? DEFAULTS.heroHeadingHighlight,
     heroSubtext: data.hero_subtext ?? DEFAULTS.heroSubtext,
-    termsAndPolicies: data.terms_and_policies,
+    termsAndPolicies: data.terms_and_policies
+      ? sanitizeRichText(data.terms_and_policies)
+      : null,
     testimonialsStatNumber: data.testimonials_stat_number,
     testimonialsTagline:
       data.testimonials_tagline ?? DEFAULTS.testimonialsTagline,

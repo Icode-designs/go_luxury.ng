@@ -4,8 +4,8 @@ import {
   BlogDetailSection,
   BlogDetailContainer,
   BlogDetailHeader,
-  BlogBody,
 } from "@/components/blog/blog.styles";
+import { RichTextContent } from "@/styles/components.styled";
 
 export const metadata: Metadata = {
   title: "Terms & Policies | Go_LuxuryHair.NG",
@@ -23,7 +23,12 @@ export default async function TermsPage() {
         </BlogDetailHeader>
 
         {termsAndPolicies ? (
-          <BlogBody>{termsAndPolicies}</BlogBody>
+          // termsAndPolicies is sanitized to a fixed safe-tag allowlist in
+          // getSiteContent.ts (both on save and on every read) -- see
+          // sanitizeRichText.ts. Never render unsanitized HTML this way.
+          <RichTextContent
+            dangerouslySetInnerHTML={{ __html: termsAndPolicies }}
+          />
         ) : (
           <p style={{ fontSize: 13, color: "#5F5E5E" }}>
             Terms &amp; Policies content hasn&apos;t been added yet.

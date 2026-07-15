@@ -190,10 +190,3 @@ export const BlogCoverImage = styled.div`
     object-fit: cover;
   }
 `;
-
-export const BlogBody = styled.div`
-  font-size: 15px;
-  line-height: 1.75;
-  color: ${({ theme }) => theme.colors.col030};
-  white-space: pre-wrap;
-`;

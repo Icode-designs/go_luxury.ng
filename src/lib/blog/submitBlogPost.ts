@@ -11,9 +11,12 @@
  * - author_id is ALWAYS derived from the verified admin's own row — never
  *   trusted from client input, and never overwritten on an edit (a post
  *   keeps its original author even if a different admin edits it later).
- * - Body/title/excerpt are sanitized with DOMPurify (strip all HTML) —
- *   this is a plain-text editor, not a rich-text one, consistent with how
- *   product descriptions are handled elsewhere in this codebase.
+ * - Title/excerpt are sanitized with DOMPurify down to plain text (strip
+ *   all HTML) — these are short single-line fields, not rich text.
+ * - Body is sanitized down to the shared rich-text allowlist (see
+ *   sanitizeRichText.ts, same one used for Terms & Policies) rather than
+ *   stripped to plain text, since the admin editor for it is now a WYSIWYG
+ *   surface (see blogPostForm.tsx).
  */
 "use server";
 
@@ -22,6 +25,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { createClient } from "@/lib/supabase/server";
 import { blogPostSchema } from "@/lib/validation/blog";
+import { sanitizeRichText } from "@/lib/richText/sanitizeRichText";
 
 export type SubmitBlogPostState =
   | { status: "idle" }
@@ -70,7 +74,7 @@ export async function submitBlogPostAction(
 
   const safeTitle = sanitize(parsed.data.title);
   const safeExcerpt = parsed.data.excerpt ? sanitize(parsed.data.excerpt) : null;
-  const safeBody = sanitize(parsed.data.body);
+  const safeBody = sanitizeRichText(parsed.data.body);
   const coverImageUrl = parsed.data.coverImageUrl || null;
 
   const supabase = await createClient();

@@ -8,8 +8,8 @@ import {
   BackLink,
   BlogDetailHeader,
   BlogCoverImage,
-  BlogBody,
 } from "@/components/blog/blog.styles";
+import { RichTextContent } from "@/styles/components.styled";
 
 interface BlogPostPageProps {
   params: Promise<{ postId: string }>;
@@ -33,10 +33,14 @@ export async function generateMetadata({
     return { title: "Post Not Found" };
   }
 
+  // post.body is sanitized HTML (see getBlogPostById.ts) -- strip the tags
+  // for the plain-text meta description fallback so raw markup never leaks
+  // into search results/social previews.
+  const bodyAsPlainText = post.body.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+
   return {
     title: `${post.title} | Go_LuxuryHair.NG Blog`,
-    description:
-      post.excerpt?.slice(0, 160) || post.body.slice(0, 160),
+    description: post.excerpt?.slice(0, 160) || bodyAsPlainText.slice(0, 160),
     openGraph: {
       title: post.title,
       images: post.coverImageUrl ? [post.coverImageUrl] : undefined,
@@ -71,7 +75,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </BlogCoverImage>
         )}
 
-        <BlogBody>{post.body}</BlogBody>
+        {/* post.body is sanitized to a fixed safe-tag allowlist in
+            getBlogPostById.ts (both on save and on every read) -- see
+            sanitizeRichText.ts. Never render unsanitized HTML this way. */}
+        <RichTextContent dangerouslySetInnerHTML={{ __html: post.body }} />
       </BlogDetailContainer>
     </BlogDetailSection>
   );

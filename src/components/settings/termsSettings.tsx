@@ -2,6 +2,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useSiteContentManagement } from "@/hook/useSiteContentManagement";
+import RichTextEditor from "./richTextEditor";
 import { SettingsFormBox } from "./settings.styles";
 
 const TermsSettings = () => {
@@ -39,8 +40,8 @@ const TermsSettings = () => {
   return (
     <div>
       <p style={{ fontSize: 13, color: "#9A8880", marginBottom: 20, maxWidth: 560 }}>
-        Plain text only — this is shown as-is on the public{" "}
-        <code>/terms</code> page. Use blank lines to separate sections.
+        Format this however reads best — headings, bold, lists, links — it
+        renders exactly as shown here on the public <code>/terms</code> page.
       </p>
 
       {actionError && (
@@ -53,12 +54,11 @@ const TermsSettings = () => {
         <SettingsFormBox style={{ maxWidth: 720 }}>
           <div>
             <label htmlFor="termsText">Terms &amp; Policies</label>
-            <textarea
+            <RichTextEditor
               id="termsText"
               value={text}
-              onChange={(e) => setText(e.target.value)}
-              rows={20}
-              style={{ minHeight: 420 }}
+              onChange={setText}
+              placeholder="Write your terms & policies here…"
             />
           </div>
 
