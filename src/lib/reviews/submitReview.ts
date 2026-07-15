@@ -8,7 +8,7 @@
  *     name/identity for who wrote the review).
  *  3. Re-validate server-side with reviewSchema.
  *  4. Rate-limit by customer id.
- *  5. Sanitize free-text fields with DOMPurify.
+ *  5. Sanitize free-text fields.
  *  6. Upsert (one review per customer per product — resubmitting edits it)
  *     with status 'pending'. Reviews only become public once an admin
  *     approves them (see reviews.status RLS policy).
@@ -20,7 +20,7 @@
  */
 "use server";
 
-import DOMPurify from "isomorphic-dompurify";
+import { stripToPlainText } from "@/lib/richText/sanitizeRichText";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/auth/rateLimit";
@@ -31,12 +31,7 @@ export type SubmitReviewState =
   | { status: "error"; message: string; fieldErrors?: Record<string, string[]> }
   | { status: "success" };
 
-function sanitize(input: string): string {
-  return DOMPurify.sanitize(input.trim(), {
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: [],
-  });
-}
+const sanitize = stripToPlainText;
 
 export async function submitReviewAction(
   _prevState: SubmitReviewState,

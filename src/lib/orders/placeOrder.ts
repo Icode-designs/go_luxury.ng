@@ -25,7 +25,7 @@
  */
 "use server";
 
-import DOMPurify from "isomorphic-dompurify";
+import { stripToPlainText } from "@/lib/richText/sanitizeRichText";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
@@ -39,12 +39,7 @@ export type PlaceOrderState =
   | { status: "error"; message: string; fieldErrors?: Record<string, string[]> }
   | { status: "success"; orderId: string };
 
-function sanitize(input: string): string {
-  return DOMPurify.sanitize(input.trim(), {
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: [],
-  });
-}
+const sanitize = stripToPlainText;
 
 export async function placeOrderAction(
   _prevState: PlaceOrderState,

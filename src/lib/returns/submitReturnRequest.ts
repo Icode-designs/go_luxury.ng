@@ -8,7 +8,7 @@
  *     client-supplied order/customer pairing).
  *  3. Re-validate server-side with returnRequestSchema.
  *  4. Rate-limit by customer id.
- *  5. Sanitize the free-text "detail" field with DOMPurify.
+ *  5. Sanitize the free-text "detail" field.
  *  6. Re-verify against the DB, not the client, that:
  *       - the order is 'delivered' (return window policy: delivered only),
  *       - every submitted order_item actually belongs to this order,
@@ -22,7 +22,7 @@
  */
 "use server";
 
-import DOMPurify from "isomorphic-dompurify";
+import { stripToPlainText } from "@/lib/richText/sanitizeRichText";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -34,12 +34,7 @@ export type SubmitReturnRequestState =
   | { status: "error"; message: string; fieldErrors?: Record<string, string[]> }
   | { status: "success" };
 
-function sanitize(input: string): string {
-  return DOMPurify.sanitize(input.trim(), {
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: [],
-  });
-}
+const sanitize = stripToPlainText;
 
 export async function submitReturnRequestAction(
   _prevState: SubmitReturnRequestState,

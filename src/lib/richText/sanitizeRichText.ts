@@ -1,22 +1,30 @@
 // src/lib/richText/sanitizeRichText.ts
 //
-// Shared allowlist-based sanitizer for the small rich-text surfaces in this
-// app (currently just Terms & Policies). Used in two places, both required:
-//   1. Client-side, right before saving (src/hook/useSiteContentManagement.ts)
-//      -- normalizes whatever the contentEditable editor produced (browsers'
-//      execCommand can emit stray <div>/<font>/style attributes) down to a
-//      clean, known-safe subset.
+// Shared allowlist-based sanitizer for this app's free-text and rich-text
+// surfaces (Terms & Policies / blog post bodies, plus every plain-text
+// free-text field across signup/profile/reviews/orders/returns — see
+// stripToPlainText below). Used in two places for the rich-text case, both
+// required:
+//   1. Client-side, right before saving (src/hook/useSiteContentManagement.ts,
+//      blogPostForm.tsx via the Server Action) -- normalizes whatever the
+//      contentEditable editor produced (browsers' execCommand can emit stray
+//      <div>/<font>/style attributes) down to a clean, known-safe subset.
 //   2. Server-side, every time the content is read back for public display
-//      (src/lib/settings/getSiteContent.ts) -- this is the real security
+//      (getSiteContent.ts, getBlogPostById.ts) -- this is the real security
 //      boundary, since that's the HTML that ends up in dangerouslySetInnerHTML
-//      on the public /terms page. Sanitizing again here means the public
-//      page is safe even if the stored value was ever edited directly
-//      (e.g. via the Supabase dashboard) rather than through this editor.
+//      on the public pages. Sanitizing again here means the public page is
+//      safe even if the stored value was ever edited directly (e.g. via the
+//      Supabase dashboard) rather than through the admin editor.
 //
-// isomorphic-dompurify runs the exact same DOMPurify library on both sides
-// (jsdom-backed on the server), so this one module is safe to import from
-// either a "use client" hook or a "server-only" data-access file.
-import DOMPurify from "isomorphic-dompurify";
+// NOTE: this used to run on isomorphic-dompurify (DOMPurify + jsdom on the
+// server). jsdom's dependency chain (html-encoding-sniffer -> @exodus/bytes)
+// has an ESM-in-CommonJS require() that Vercel's server bundler can't load,
+// which crashed every route that imported it with FUNCTION_INVOCATION_FAILED
+// (surfaced on /terms, but any of the plain-text sanitize() call sites below
+// were one bundling quirk away from the same crash). sanitize-html is pure
+// JS (htmlparser2-based, no DOM emulation, no jsdom), so it doesn't have this
+// problem and is a better fit for a server-only sanitizer anyway.
+import sanitizeHtml from "sanitize-html";
 
 export const RICH_TEXT_ALLOWED_TAGS = [
   "p",
@@ -37,26 +45,44 @@ export const RICH_TEXT_ALLOWED_TAGS = [
 
 export const RICH_TEXT_ALLOWED_ATTR = ["href", "target", "rel"];
 
-// Belt-and-braces on top of the tag/attribute allowlist: strip any <a> whose
-// href isn't a plain http(s) URL (blocks javascript:, data:, etc.), and force
-// safe attributes on the ones that remain so pasted markup can never produce
-// a target="_blank" link without rel="noopener noreferrer" (tabnabbing).
-DOMPurify.addHook("afterSanitizeAttributes", (node) => {
-  if (node.tagName === "A") {
-    const href = node.getAttribute("href") ?? "";
-    if (!/^https:\/\//i.test(href) && !/^http:\/\//i.test(href)) {
-      node.removeAttribute("href");
-    } else {
-      node.setAttribute("target", "_blank");
-      node.setAttribute("rel", "noopener noreferrer");
-    }
-  }
-});
-
 export function sanitizeRichText(html: string | null | undefined): string {
   if (!html) return "";
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: RICH_TEXT_ALLOWED_TAGS,
-    ALLOWED_ATTR: RICH_TEXT_ALLOWED_ATTR,
+  return sanitizeHtml(html, {
+    allowedTags: RICH_TEXT_ALLOWED_TAGS,
+    allowedAttributes: {
+      a: RICH_TEXT_ALLOWED_ATTR,
+    },
+    // Belt-and-braces on top of the tag/attribute allowlist: only allow
+    // plain http(s) URLs, blocking javascript: and data: schemes --
+    // sanitize-html strips the href entirely if the scheme isn't allowed.
+    allowedSchemes: ["http", "https"],
+    // Force safe attributes on every surviving anchor so pasted markup can
+    // never produce a target="_blank" link without rel="noopener noreferrer"
+    // (tabnabbing).
+    transformTags: {
+      a: (tagName, attribs) => ({
+        tagName,
+        attribs: {
+          ...attribs,
+          ...(attribs.href
+            ? { target: "_blank", rel: "noopener noreferrer" }
+            : {}),
+        },
+      }),
+    },
   }).trim();
+}
+
+/**
+ * Strips ALL HTML down to plain text. Used for short single-line free-text
+ * fields across the app (names, addresses, review text, return details,
+ * etc.) that should never contain markup — this is a second sanitization
+ * layer on top of each field's Zod validation (which already rejects raw
+ * HTML/javascript: via HTML_SCRIPT_PATTERN).
+ */
+export function stripToPlainText(input: string): string {
+  return sanitizeHtml(input.trim(), {
+    allowedTags: [],
+    allowedAttributes: {},
+  });
 }

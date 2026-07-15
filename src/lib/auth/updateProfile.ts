@@ -6,14 +6,14 @@
  * placeOrder, etc.):
  *  1. Require an authenticated customer — never trust a client-supplied id.
  *  2. Re-validate server-side with profileSchema.
- *  3. Sanitize free-text with DOMPurify.
+ *  3. Sanitize free-text with sanitize-html.
  *  4. Write through the RLS-respecting server client — safe because the
  *     "Customers update their own record" policy (auth_user_id = auth.uid())
  *     already scopes this to the caller's own row.
  */
 "use server";
 
-import DOMPurify from "isomorphic-dompurify";
+import { stripToPlainText } from "@/lib/richText/sanitizeRichText";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { createClient } from "@/lib/supabase/server";
@@ -24,12 +24,7 @@ export type UpdateProfileState =
   | { status: "error"; message: string; fieldErrors?: Record<string, string[]> }
   | { status: "success" };
 
-function sanitize(input: string): string {
-  return DOMPurify.sanitize(input.trim(), {
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: [],
-  });
-}
+const sanitize = stripToPlainText;
 
 export async function updateProfileAction(
   _prevState: UpdateProfileState,

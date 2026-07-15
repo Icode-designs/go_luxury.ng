@@ -6,7 +6,7 @@
  * FLOW:
  *  1. Check honeypot — silent rejection if populated (bot deterrent).
  *  2. Re-validate server-side with signupSchema (never trust client validation).
- *  3. Sanitize free-text fields with DOMPurify (Node config) as a second layer.
+ *  3. Sanitize free-text fields with sanitize-html (Node config) as a second layer.
  *  4. Rate-limit by IP (5 attempts / hour).
  *  5. Look up CUSTOMERS by normalized email:
  *     a. Exists with non-null auth_user_id → generic "account exists" error.
@@ -28,7 +28,7 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import DOMPurify from "isomorphic-dompurify";
+import { stripToPlainText } from "@/lib/richText/sanitizeRichText";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { signupSchema } from "@/lib/validation/auth";
@@ -47,12 +47,7 @@ export type SignupActionState =
 // ---------------------------------------------------------------------------
 // Sanitize a free-text string server-side
 // ---------------------------------------------------------------------------
-function sanitize(input: string): string {
-  return DOMPurify.sanitize(input.trim(), {
-    ALLOWED_TAGS: [], // Strip all HTML — plain text only
-    ALLOWED_ATTR: [],
-  });
-}
+const sanitize = stripToPlainText;
 
 // ---------------------------------------------------------------------------
 // Server Action

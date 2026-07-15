@@ -38,7 +38,7 @@ const WEAK_PASSWORDS = new Set([
 
 // ---------------------------------------------------------------------------
 // Pattern to reject HTML / script injection in free-text fields.
-// This is a first-layer rejection; DOMPurify sanitises server-side as well.
+// This is a first-layer rejection; sanitize-html sanitises server-side as well.
 // ---------------------------------------------------------------------------
 const HTML_SCRIPT_PATTERN = /<[^>]*>|javascript:/i;
 
