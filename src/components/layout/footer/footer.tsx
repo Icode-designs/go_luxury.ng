@@ -66,7 +66,7 @@ const Footer = () => {
         </FooterArticle>
 
         <UsefulLinks>
-          <h3>Links</h3>
+          <h3>LINKS</h3>
           <div>
             <Link href="/terms">TERMS &amp; POLICIES</Link>
             <Link href="">CONTACT US</Link>
