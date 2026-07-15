@@ -29,7 +29,7 @@ export function ProductCardItem({
   const isOnSale = product.discounted_price !== null;
 
   return (
-    <Link href={`/product/${product.id}`} passHref legacyBehavior>
+    <Link href={`/product/${product.id}`}>
       <ProductCard>
         <div className="product-image-wrap">
           {product.isNew && (

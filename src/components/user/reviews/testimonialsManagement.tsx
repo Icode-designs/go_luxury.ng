@@ -250,10 +250,10 @@ const TestimonialsManagement = () => {
   return (
     <div>
       <p style={{ fontSize: 13, color: "#9A8880", marginBottom: 16, maxWidth: 640 }}>
-        The homepage carousel always shows 5 testimonials. Slots you haven&apos;t
-        filled in show placeholder copy — fill in a slot to replace it with a
-        real customer testimonial, one at a time. A customer photo is optional;
-        slots without one fall back to a monogram avatar on the homepage.
+        The homepage testimonials section stays hidden until at least one slot
+        below is filled in — real testimonials then phase in one at a time, no
+        placeholder copy is ever shown to customers. A customer photo is
+        optional; slots without one fall back to a monogram avatar.
       </p>
 
       <TestimonialSlotGrid>

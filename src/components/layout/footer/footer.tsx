@@ -7,13 +7,19 @@ import {
   NewsLetter,
   NewsletterInputBox,
   PaymentMethods,
+  SocialLinksBox,
   UsefulLinks,
 } from "./footer.styles";
 import Logo from "@/components/ui/logo";
 import { FlexBox } from "@/styles/components.styled";
 import Link from "next/link";
-import { AiOutlineBank, AiOutlineFacebook } from "react-icons/ai";
-import { FaCcMastercard, FaInstagram, FaStripe } from "react-icons/fa6";
+import { AiOutlineBank } from "react-icons/ai";
+import {
+  FaCcMastercard,
+  FaInstagram,
+  FaStripe,
+  FaTiktok,
+} from "react-icons/fa6";
 import { MdWhatsapp } from "react-icons/md";
 import { RiVisaFill } from "react-icons/ri";
 
@@ -31,10 +37,17 @@ const Footer = () => {
             Elevating standard to exclusivity. The home of the {`${"world's"}`}{" "}
             finest authentic donor hair.
           </p>
-          <FlexBox $width="100%" $justify="start" $gap={10}>
-            {/* TODO: replace with the real handles/number once provided */}
+          <SocialLinksBox $gap={8}>
             <Link
-              href="https://www.instagram.com"
+              href="https://www.tiktok.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+            >
+              <FaTiktok />
+            </Link>
+            <Link
+              href="https://www.instagram.com/go_luxuryhair.ng/"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
@@ -42,30 +55,23 @@ const Footer = () => {
               <FaInstagram />
             </Link>
             <Link
-              href="https://www.facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Facebook"
-            >
-              <AiOutlineFacebook />
-            </Link>
-            <Link
-              href="https://wa.me/"
+              href="https://wa.me/2348123542162"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="WhatsApp"
             >
               <MdWhatsapp />
             </Link>
-          </FlexBox>
+          </SocialLinksBox>
         </FooterArticle>
 
         <UsefulLinks>
-          <h3>RESOURCES</h3>
+          <h3>Links</h3>
           <div>
             <Link href="/terms">TERMS &amp; POLICIES</Link>
-            <Link href="">SHIPPING INFO</Link>
             <Link href="">CONTACT US</Link>
+            <Link href="/shop">GO TO SHOP</Link>
+            <Link href="/blog">GO TO BLOG</Link>
           </div>
         </UsefulLinks>
 

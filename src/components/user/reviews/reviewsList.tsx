@@ -1,7 +1,10 @@
 "use client";
 import { useMemo, useState } from "react";
 import { IoIosSearch } from "react-icons/io";
-import type { AdminReviewRow, ReviewStatus } from "@/lib/reviews/getReviewsForAdmin";
+import type {
+  AdminReviewRow,
+  ReviewStatus,
+} from "@/lib/reviews/getReviewsForAdmin";
 import { AdminHeaderInputBox } from "../user.styles";
 import {
   ToolbarWrap,
@@ -24,7 +27,9 @@ interface ReviewsListProps {
 
 const ReviewsList = ({ initialReviews }: ReviewsListProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<ReviewStatus | "all">("pending");
+  const [statusFilter, setStatusFilter] = useState<ReviewStatus | "all">(
+    "pending",
+  );
 
   const filtered = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -34,7 +39,8 @@ const ReviewsList = ({ initialReviews }: ReviewsListProps) => {
         review.productName.toLowerCase().includes(term) ||
         (review.customerName?.toLowerCase().includes(term) ?? false) ||
         (review.customerEmail?.toLowerCase().includes(term) ?? false);
-      const matchesStatus = statusFilter === "all" || review.status === statusFilter;
+      const matchesStatus =
+        statusFilter === "all" || review.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [initialReviews, searchTerm, statusFilter]);

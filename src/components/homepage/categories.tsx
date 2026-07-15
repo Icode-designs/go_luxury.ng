@@ -42,11 +42,7 @@ const HomeCategories = () => {
         >
           {categories.map((category) => (
             <motion.div key={category.id} variants={itemVariants}>
-              <Link
-                href={`/shop?category=${category.id}`}
-                passHref
-                legacyBehavior
-              >
+              <Link href={`/shop?category=${category.id}`}>
                 <CategoryTile>
                   {category.image_url ? (
                     // eslint-disable-next-line @next/next/no-img-element

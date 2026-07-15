@@ -1,5 +1,6 @@
 "use client";
 
+import { FlexBox } from "@/styles/components.styled";
 import styled from "styled-components";
 
 export const FooterSection = styled.footer`
@@ -64,11 +65,17 @@ export const FooterArticle = styled.article`
       color: ${({ theme }) => theme.colors.col010};
     }
   }
+`;
 
-  &:last-child {
+export const SocialLinksBox = styled(FlexBox)`
+  a {
     svg {
-      font-size: 20px;
+      font-size: 32px;
       color: ${({ theme }) => theme.colors.col040};
+
+      &:hover {
+        color: ${({ theme }) => theme.colors.col010};
+      }
     }
   }
 `;
@@ -98,6 +105,10 @@ export const UsefulLinks = styled.div`
       letter-spacing: 0;
       font-family: ${({ theme }) => theme.fonts.fontPrimary};
       color: ${({ theme }) => theme.colors.col030};
+
+      &:hover {
+        color: ${({ theme }) => theme.colors.col010};
+      }
     }
   }
 `;

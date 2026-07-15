@@ -236,7 +236,7 @@ export const SettingsHubGrid = styled.div`
   gap: 16px;
 `;
 
-export const SettingsHubCard = styled.a`
+export const SettingsHubCard = styled.div`
   display: grid;
   gap: 6px;
   padding: 20px;
@@ -266,7 +266,21 @@ export const SettingsHubCard = styled.a`
   }
 `;
 
-export const SettingsBackLink = styled.a`
+export const SettingsSectionHeading = styled.h2`
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: ${({ theme }) => theme.colors.col032};
+  padding-top: 8px;
+  border-top: 1px solid ${({ theme }) => theme.colors.col033};
+
+  &:first-of-type {
+    padding-top: 0;
+    border-top: none;
+  }
+`;
+
+export const SettingsBackLink = styled.div`
   display: inline-block;
   font-size: 12px;
   text-transform: uppercase;

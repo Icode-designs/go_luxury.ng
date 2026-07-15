@@ -6,8 +6,10 @@ import styled from "styled-components";
 
 export const PageHeaderWrap = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   margin-bottom: 24px;
 
   h1 {
@@ -21,24 +23,29 @@ export const PageHeaderWrap = styled.div`
     padding: 10px 18px;
     border-radius: 8px;
     font-size: 13px;
+    white-space: nowrap;
   }
 `;
 
 export const ToolbarWrap = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   margin-bottom: 16px;
 
   input[type="text"] {
     padding: 8px 14px;
     border: 1px solid ${({ theme }) => theme.colors.col033};
     border-radius: 8px;
-    width: 260px;
+    width: 100%;
+    max-width: 260px;
   }
 
   > div {
     display: flex;
+    flex-wrap: wrap;
     gap: 6px;
   }
 `;
@@ -60,9 +67,11 @@ export const TableWrap = styled.div`
   background-color: ${({ theme }) => theme.colors.col040};
   border-radius: 12px;
   border: 1px solid ${({ theme }) => theme.colors.col033};
+  overflow-x: auto;
 
   table {
     width: 100%;
+    min-width: 640px;
     border-collapse: collapse;
   }
 
@@ -470,6 +479,7 @@ export const PriceToggleRow = styled.div`
 // -- Per-product attribute values (replaces the old variant-grid UI) ------
 export const AttributeRowBox = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
   gap: 16px;
   padding: 12px 16px;
@@ -479,6 +489,7 @@ export const AttributeRowBox = styled.div`
 
   > div {
     width: fit-content;
+    max-width: 100%;
 
     h3 {
       font-size: 12px;
@@ -491,6 +502,7 @@ export const AttributeRowBox = styled.div`
       border-radius: 8px;
       padding: 8px 16px;
       border: 1px solid ${({ theme }) => theme.colors.col033};
+      max-width: 100%;
     }
 
     &:nth-of-type(1) input {

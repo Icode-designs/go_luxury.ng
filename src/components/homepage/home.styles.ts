@@ -220,7 +220,7 @@ export const CategoriesGrid = styled.div`
   }
 `;
 
-export const CategoryTile = styled.a`
+export const CategoryTile = styled.div`
   position: relative;
   display: block;
   aspect-ratio: 3 / 4;
@@ -673,7 +673,7 @@ export const ProductsGrid = styled.div`
   }
 `;
 
-export const ProductCard = styled.a`
+export const ProductCard = styled.div`
   display: block;
 
   .product-image-wrap {

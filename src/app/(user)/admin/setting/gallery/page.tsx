@@ -11,7 +11,7 @@ const page = () => {
         <h1>Homepage Gallery</h1>
       </AdminHeaderBox>
       <div className="content">
-        <Link href="/admin/setting" passHref legacyBehavior>
+        <Link href="/admin/setting">
           <SettingsBackLink>&larr; Back to settings</SettingsBackLink>
         </Link>
         <GallerySettings />

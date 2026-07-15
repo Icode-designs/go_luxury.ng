@@ -5,7 +5,10 @@ import { BiImages } from "react-icons/bi";
 import { LuFileText } from "react-icons/lu";
 import { FaQuoteLeft } from "react-icons/fa";
 import { AdminContentBox, AdminHeaderBox } from "@/components/user/user.styles";
-import { SettingsHubGrid, SettingsHubCard } from "@/components/settings/settings.styles";
+import {
+  SettingsHubGrid,
+  SettingsHubCard,
+} from "@/components/settings/settings.styles";
 import React from "react";
 
 const SETTINGS_SECTIONS = [
@@ -50,7 +53,7 @@ const page = () => {
       <div className="content">
         <SettingsHubGrid>
           {SETTINGS_SECTIONS.map(({ href, icon: Icon, title, description }) => (
-            <Link key={href} href={href} passHref legacyBehavior>
+            <Link key={href} href={href}>
               <SettingsHubCard>
                 <Icon />
                 <h3>{title}</h3>

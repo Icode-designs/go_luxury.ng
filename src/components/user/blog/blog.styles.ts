@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import styled from "styled-components";
 
 export const ToolbarWrap = styled.div`
@@ -92,7 +93,7 @@ export const EmptyStateBox = styled.div`
   font-size: 13px;
 `;
 
-export const StyledLink = styled.a`
+export const StyledLink = styled(Link)`
   display: flex;
   align-items: center;
   gap: 8px;
