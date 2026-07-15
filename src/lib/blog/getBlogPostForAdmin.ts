@@ -10,6 +10,7 @@ export interface AdminBlogPostDetail {
   title: string;
   excerpt: string;
   coverImageUrl: string;
+  coverImageStorageId: string | null;
   body: string;
   status: "draft" | "published";
 }
@@ -21,7 +22,9 @@ export async function getBlogPostForAdmin(
 
   const { data, error } = await supabase
     .from("blog_posts")
-    .select("id, title, excerpt, cover_image_url, body, status")
+    .select(
+      "id, title, excerpt, cover_image_url, cover_image_storage_id, body, status",
+    )
     .eq("id", postId)
     .maybeSingle();
 
@@ -35,6 +38,7 @@ export async function getBlogPostForAdmin(
     title: data.title,
     excerpt: data.excerpt ?? "",
     coverImageUrl: data.cover_image_url ?? "",
+    coverImageStorageId: data.cover_image_storage_id,
     body: data.body,
     status: data.status,
   };

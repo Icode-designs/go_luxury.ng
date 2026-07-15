@@ -52,6 +52,7 @@ export async function submitBlogPostAction(
     title: formData.get("title") ?? "",
     excerpt: formData.get("excerpt") ?? "",
     coverImageUrl: formData.get("coverImageUrl") ?? "",
+    coverImageStorageId: formData.get("coverImageStorageId") ?? "",
     body: formData.get("body") ?? "",
     status: formData.get("status") ?? "draft",
   };
@@ -73,6 +74,7 @@ export async function submitBlogPostAction(
   const safeExcerpt = parsed.data.excerpt ? sanitize(parsed.data.excerpt) : null;
   const safeBody = sanitizeRichText(parsed.data.body);
   const coverImageUrl = parsed.data.coverImageUrl || null;
+  const coverImageStorageId = parsed.data.coverImageStorageId || null;
 
   const supabase = await createClient();
 
@@ -99,6 +101,7 @@ export async function submitBlogPostAction(
         title: safeTitle,
         excerpt: safeExcerpt,
         cover_image_url: coverImageUrl,
+        cover_image_storage_id: coverImageStorageId,
         body: safeBody,
         status: parsed.data.status,
         published_at: publishedAt,
@@ -119,6 +122,7 @@ export async function submitBlogPostAction(
       title: safeTitle,
       excerpt: safeExcerpt,
       cover_image_url: coverImageUrl,
+      cover_image_storage_id: coverImageStorageId,
       body: safeBody,
       status: parsed.data.status,
       published_at: parsed.data.status === "published" ? new Date().toISOString() : null,

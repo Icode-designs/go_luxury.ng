@@ -34,6 +34,11 @@ export const blogPostSchema = z.object({
     .optional()
     .or(z.literal("")),
 
+  // Supabase Storage object path for the cover image (blog-images bucket),
+  // tracked alongside the public URL so it can be removed on replace/delete
+  // -- same convention as hero/category/gallery/testimonial images.
+  coverImageStorageId: z.string().trim().optional().or(z.literal("")),
+
   body: z
     .string()
     .min(20, "Body must be at least 20 characters")

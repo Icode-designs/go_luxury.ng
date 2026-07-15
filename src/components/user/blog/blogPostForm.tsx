@@ -1,15 +1,17 @@
 "use client";
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { InputBox } from "@/styles/auth.styles";
 import { FormError, FieldError } from "@/styles/auth-error.styles";
 import Button from "@/components/ui/button";
 import RichTextEditor from "@/components/settings/richTextEditor";
+import ImageUploadTile from "@/components/settings/imageUploadTile";
+import { createClient } from "@/lib/supabase/client";
 import {
   submitBlogPostAction,
   type SubmitBlogPostState,
 } from "@/lib/blog/submitBlogPost";
 import type { AdminBlogPostDetail } from "@/lib/blog/getBlogPostForAdmin";
-import { PostForm, FormActionsRow } from "./blog.styles";
+import { PostForm, FormActionsRow, FieldBox } from "./blog.styles";
 
 interface BlogPostFormProps {
   post?: AdminBlogPostDetail;
@@ -26,7 +28,70 @@ const BlogPostForm = ({ post }: BlogPostFormProps) => {
   // under name="body", same as every other field here.
   const [body, setBody] = useState(post?.body ?? "");
 
+  // Cover image is uploaded straight to Supabase Storage (blog-images
+  // bucket) from the browser, same convention as hero/category/gallery/
+  // testimonial images -- the resulting public URL + storage path are just
+  // mirrored into hidden inputs so the existing Server Action still saves
+  // them together with the rest of the post on submit. A brand-new post
+  // has no id yet, so a stable per-form draft id is used as the storage
+  // folder until the post is actually created.
+  const draftIdRef = useRef(post?.id ?? crypto.randomUUID());
+  const [coverImageUrl, setCoverImageUrl] = useState(post?.coverImageUrl ?? "");
+  const [coverImageStorageId, setCoverImageStorageId] = useState<string | null>(
+    post?.coverImageStorageId ?? null,
+  );
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [coverError, setCoverError] = useState<string | null>(null);
+
   const fieldErrors = state.status === "error" ? state.fieldErrors : undefined;
+
+  async function handleCoverFile(file: File) {
+    setIsUploadingCover(true);
+    setCoverError(null);
+    try {
+      const supabase = createClient();
+
+      if (coverImageStorageId) {
+        await supabase.storage.from("blog-images").remove([coverImageStorageId]);
+      }
+
+      const ext = file.name.split(".").pop();
+      const storagePath = `${draftIdRef.current}/${Date.now()}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("blog-images")
+        .upload(storagePath, file, { cacheControl: "3600", upsert: false });
+
+      if (uploadError) throw new Error(uploadError.message);
+
+      const { data: urlData } = supabase.storage
+        .from("blog-images")
+        .getPublicUrl(storagePath);
+
+      setCoverImageUrl(urlData.publicUrl);
+      setCoverImageStorageId(storagePath);
+    } catch (err) {
+      setCoverError(
+        err instanceof Error ? err.message : "Failed to upload image.",
+      );
+    } finally {
+      setIsUploadingCover(false);
+    }
+  }
+
+  async function handleCoverRemove() {
+    setCoverError(null);
+    if (coverImageStorageId) {
+      try {
+        const supabase = createClient();
+        await supabase.storage.from("blog-images").remove([coverImageStorageId]);
+      } catch {
+        // Non-fatal — worst case an orphaned file remains in storage.
+      }
+    }
+    setCoverImageUrl("");
+    setCoverImageStorageId(null);
+  }
 
   return (
     <PostForm action={formAction}>
@@ -59,21 +124,29 @@ const BlogPostForm = ({ post }: BlogPostFormProps) => {
           {fieldErrors?.excerpt && <FieldError>{fieldErrors.excerpt[0]}</FieldError>}
         </InputBox>
 
-        <InputBox>
-          <label htmlFor="coverImageUrl">Cover image URL (optional)</label>
+        <FieldBox>
+          <label>Cover image (optional)</label>
+          <input type="hidden" name="coverImageUrl" value={coverImageUrl} />
           <input
-            id="coverImageUrl"
-            name="coverImageUrl"
-            type="text"
-            defaultValue={post?.coverImageUrl}
-            placeholder="https://…"
+            type="hidden"
+            name="coverImageStorageId"
+            value={coverImageStorageId ?? ""}
           />
+          <ImageUploadTile
+            image={coverImageUrl || null}
+            onFile={handleCoverFile}
+            onRemove={handleCoverRemove}
+            isUploading={isUploadingCover}
+            alt="Blog post cover image"
+            size={160}
+          />
+          {coverError && <FieldError>{coverError}</FieldError>}
           {fieldErrors?.coverImageUrl && (
             <FieldError>{fieldErrors.coverImageUrl[0]}</FieldError>
           )}
-        </InputBox>
+        </FieldBox>
 
-        <InputBox>
+        <FieldBox>
           <label htmlFor="body">Body</label>
           <input type="hidden" name="body" value={body} />
           <RichTextEditor
@@ -83,7 +156,7 @@ const BlogPostForm = ({ post }: BlogPostFormProps) => {
             placeholder="Write the post here…"
           />
           {fieldErrors?.body && <FieldError>{fieldErrors.body[0]}</FieldError>}
-        </InputBox>
+        </FieldBox>
 
         <InputBox>
           <label htmlFor="status">Status</label>

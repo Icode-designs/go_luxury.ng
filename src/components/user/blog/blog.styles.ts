@@ -127,3 +127,26 @@ export const FormActionsRow = styled.div`
   align-items: center;
   gap: 12px;
 `;
+
+// A plain label + content wrapper for form fields whose content is NOT a
+// bare <input>/<textarea> (the rich text editor, the cover image upload
+// tile) -- deliberately does NOT reuse InputBox from auth.styles.ts, whose
+// descendant `input`/`textarea`/`button` selectors would otherwise bleed
+// onto every button inside those composite fields (this is exactly what
+// made the rich text toolbar buttons and the image tile's remove button
+// render broken/invisible when they were nested in InputBox).
+export const FieldBox = styled.div`
+  width: 100%;
+  display: grid;
+  gap: 8px;
+
+  label {
+    font-family: ${({ theme }) => theme.fonts.fontPrimary};
+    color: ${({ theme }) => theme.colors.col000};
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1.2px;
+    line-height: 16px;
+    text-transform: uppercase;
+  }
+`;

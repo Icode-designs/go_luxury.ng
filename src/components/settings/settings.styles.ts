@@ -486,6 +486,7 @@ export const RichTextSurface = styled.div`
   font-size: 14px;
   line-height: 1.65;
   color: ${({ theme }) => theme.colors.col000};
+  background-color: ${({ theme }) => theme.colors.col040};
   outline: none;
 
   &:empty::before {
