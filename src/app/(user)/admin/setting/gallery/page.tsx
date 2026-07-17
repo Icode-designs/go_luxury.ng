@@ -4,7 +4,7 @@ import { AdminContentBox, AdminHeaderBox } from "@/components/user/user.styles";
 import { SettingsBackLink } from "@/components/settings/settings.styles";
 import React from "react";
 
-const page = () => {
+const Page = () => {
   return (
     <AdminContentBox>
       <AdminHeaderBox>
@@ -20,4 +20,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

@@ -1,14 +1,9 @@
 import { StyledLink } from "@/components/user/products/products.styles";
 import ProductsTable from "@/components/user/products/productsTable";
-import {
-  AdminContentBox,
-  AdminHeaderBox,
-  AdminHeaderInputBox,
-} from "@/components/user/user.styles";
+import { AdminContentBox, AdminHeaderBox } from "@/components/user/user.styles";
 import { getProductsForAdmin } from "@/lib/products/getProductsForAdmin";
 import React from "react";
 import { FaPlus } from "react-icons/fa6";
-import { IoIosSearch } from "react-icons/io";
 
 const page = async () => {
   const products = await getProductsForAdmin();

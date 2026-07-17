@@ -11,7 +11,6 @@ import ProductMedia from "./productMedia";
 import ProductAttributes, { type AttributeValueRow } from "./productAttributes";
 import { useCategories } from "@/hook/useCategories";
 import { submitProduct } from "@/lib/products/submitProduct";
-import { FlexBox } from "@/styles/components.styled";
 import Button from "../../ui/button";
 import type { ExistingProductData } from "@/hook/fetchProduct";
 import { useRef } from "react";
