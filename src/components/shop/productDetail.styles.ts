@@ -15,13 +15,22 @@ export const ProductDetailContainer = styled.div`
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
 
-  @media (min-width: 1024px) {
+  > div:nth-of-type(1) {
+    display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 48px;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  @media (max-width: 1024px) {
+    > div:nth-of-type(1) {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
   }
 `;
 

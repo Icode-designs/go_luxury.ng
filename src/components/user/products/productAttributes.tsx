@@ -88,7 +88,7 @@ const ProductAttributes = ({
             <input
               type="text"
               placeholder="e.g. Color"
-              value={attr.label}
+              defaultValue={attr.label}
               onChange={(e) =>
                 updateAttribute(attr.id, { label: e.target.value })
               }
@@ -100,7 +100,7 @@ const ProductAttributes = ({
             <input
               type="text"
               placeholder="e.g. Black"
-              value={attr.value}
+              defaultValue={attr.value}
               onChange={(e) =>
                 updateAttribute(attr.id, { value: e.target.value })
               }

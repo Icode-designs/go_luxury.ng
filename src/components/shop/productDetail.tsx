@@ -20,6 +20,7 @@ import {
   AddToCartNotice,
   QuantityRow,
 } from "./productDetail.styles";
+import { FlexBox } from "@/styles/components.styled";
 
 interface ProductDetailViewProps {
   product: ProductDetail;
@@ -41,7 +42,8 @@ const ProductDetailView = ({ product }: ProductDetailViewProps) => {
     : [{ url: "", isPrimary: true }];
 
   const isOnSale =
-    product.discountedPrice !== null && product.discountedPrice < product.basePrice;
+    product.discountedPrice !== null &&
+    product.discountedPrice < product.basePrice;
   const effectivePrice = product.discountedPrice ?? product.basePrice;
 
   const outOfStock = product.stockCount === 0;
@@ -62,120 +64,126 @@ const ProductDetailView = ({ product }: ProductDetailViewProps) => {
 
   return (
     <ProductDetailContainer>
-      <GalleryColumn>
-        <MainImageBox>
-          {images[activeImageIndex]?.url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={images[activeImageIndex].url} alt={product.name} />
-          ) : null}
-        </MainImageBox>
+      <FlexBox $width="100%" $justify="space-between" $gap={48}>
+        <GalleryColumn>
+          <MainImageBox>
+            {images[activeImageIndex]?.url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={images[activeImageIndex].url} alt={product.name} />
+            ) : null}
+          </MainImageBox>
 
-        {images.length > 1 && (
-          <ThumbnailRow>
-            {images.map((img, i) => (
-              <ThumbnailButton
-                key={img.url + i}
-                type="button"
-                $active={i === activeImageIndex}
-                onClick={() => setActiveImageIndex(i)}
-                aria-label={`View image ${i + 1}`}
-                aria-current={i === activeImageIndex}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={img.url} alt="" />
-              </ThumbnailButton>
-            ))}
-          </ThumbnailRow>
-        )}
-
-        {/* Description + a read-only spec list live under the gallery. */}
-        <BelowGalleryBlock>
-          {product.description && (
-            <Description>{product.description}</Description>
-          )}
-
-          {product.attributes.length > 0 && (
-            <SpecsList>
-              {product.attributes.map((attribute) => (
-                <div key={attribute.id}>
-                  <dt>{attribute.label}</dt>
-                  <dd>{attribute.value}</dd>
-                </div>
+          {images.length > 1 && (
+            <ThumbnailRow>
+              {images.map((img, i) => (
+                <ThumbnailButton
+                  key={img.url + i}
+                  type="button"
+                  $active={i === activeImageIndex}
+                  onClick={() => setActiveImageIndex(i)}
+                  aria-label={`View image ${i + 1}`}
+                  aria-current={i === activeImageIndex}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={img.url} alt="" />
+                </ThumbnailButton>
               ))}
-            </SpecsList>
+            </ThumbnailRow>
           )}
-        </BelowGalleryBlock>
-      </GalleryColumn>
+        </GalleryColumn>
 
-      <InfoColumn>
-        <h1>{product.name}</h1>
+        <InfoColumn>
+          <h1>{product.name}</h1>
 
-        {product.category && <p>{product.category.name}</p>}
+          {product.category && <p>{product.category.name}</p>}
 
-        <PriceRow>
-          <span className="price-current">
-            {"₦"}
-            {effectivePrice.toLocaleString()}
-          </span>
-          {isOnSale && (
-            <span className="price-old">
+          <PriceRow>
+            <span className="price-current">
               {"₦"}
-              {product.basePrice.toLocaleString()}
+              {effectivePrice.toLocaleString()}
             </span>
+            {isOnSale && (
+              <span className="price-old">
+                {"₦"}
+                {product.basePrice.toLocaleString()}
+              </span>
+            )}
+          </PriceRow>
+
+          <StockNote $lowOrOut={product.stockCount <= 3}>
+            {outOfStock
+              ? "Out of stock"
+              : product.stockCount <= 3
+                ? `Only ${product.stockCount} left in stock`
+                : "In stock"}
+          </StockNote>
+
+          {!outOfStock && (
+            <QuantityRow>
+              <span>Quantity</span>
+              <div>
+                <button
+                  type="button"
+                  aria-label="Decrease quantity"
+                  disabled={quantity <= 1}
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                >
+                  −
+                </button>
+                <span aria-live="polite">{quantity}</span>
+                <button
+                  type="button"
+                  aria-label="Increase quantity"
+                  disabled={quantity >= maxQty}
+                  onClick={() => setQuantity((q) => Math.min(maxQty, q + 1))}
+                >
+                  +
+                </button>
+              </div>
+            </QuantityRow>
           )}
-        </PriceRow>
 
-        <StockNote $lowOrOut={product.stockCount <= 3}>
-          {outOfStock
-            ? "Out of stock"
-            : product.stockCount <= 3
-              ? `Only ${product.stockCount} left in stock`
-              : "In stock"}
-        </StockNote>
+          <Button
+            variant="filled-dark"
+            disabled={outOfStock || isPending}
+            onClick={handleAddToCart}
+            style={{ maxWidth: "100%" }}
+          >
+            {outOfStock
+              ? "Out of Stock"
+              : isPending
+                ? "Adding…"
+                : "Add to Cart"}
+          </Button>
 
-        {!outOfStock && (
-          <QuantityRow>
-            <span>Quantity</span>
-            <div>
-              <button
-                type="button"
-                aria-label="Decrease quantity"
-                disabled={quantity <= 1}
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-              >
-                −
-              </button>
-              <span aria-live="polite">{quantity}</span>
-              <button
-                type="button"
-                aria-label="Increase quantity"
-                disabled={quantity >= maxQty}
-                onClick={() => setQuantity((q) => Math.min(maxQty, q + 1))}
-              >
-                +
-              </button>
-            </div>
-          </QuantityRow>
+          {addState.status === "success" && (
+            <AddToCartNotice role="status">
+              Added to your cart. <Link href="/cart">View cart</Link>
+            </AddToCartNotice>
+          )}
+          {addState.status === "error" && (
+            <AddToCartNotice role="alert">{addState.message}</AddToCartNotice>
+          )}
+        </InfoColumn>
+      </FlexBox>
+
+      {/* Description + a read-only spec list live under the gallery. */}
+      <BelowGalleryBlock>
+        {product.description && (
+          <Description>{product.description}</Description>
         )}
 
-        <Button
-          variant="filled-dark"
-          disabled={outOfStock || isPending}
-          onClick={handleAddToCart}
-          style={{ maxWidth: "100%" }}
-        >
-          {outOfStock ? "Out of Stock" : isPending ? "Adding…" : "Add to Cart"}
-        </Button>
-
-        {addState.status === "success" && (
-          <AddToCartNotice role="status">
-            Added to your cart. <Link href="/cart">View cart</Link>
-          </AddToCartNotice>
+        {product.attributes.length > 0 && (
+          <SpecsList>
+            {product.attributes.map((attribute) => (
+              <div key={attribute.id}>
+                <dt>{attribute.label}</dt>
+                <dd>{attribute.value}</dd>
+              </div>
+            ))}
+          </SpecsList>
         )}
-        {addState.status === "error" && (
-          <AddToCartNotice role="alert">{addState.message}</AddToCartNotice>
-        )}
-      </InfoColumn>
+      </BelowGalleryBlock>
     </ProductDetailContainer>
   );
 };

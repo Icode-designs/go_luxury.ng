@@ -5,9 +5,7 @@ import { useRouter } from "next/navigation";
 import { ProductForm } from "@/components/user/products/products.styles";
 import GeneralInformation from "./generalInformation";
 import ProductMedia from "./productMedia";
-import ProductAttributes, {
-  type AttributeValueRow,
-} from "./productAttributes";
+import ProductAttributes, { type AttributeValueRow } from "./productAttributes";
 import { useCategories } from "@/hook/useCategories";
 import { submitProduct } from "@/lib/products/submitProduct";
 import { FlexBox } from "@/styles/components.styled";
