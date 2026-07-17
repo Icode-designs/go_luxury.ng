@@ -91,6 +91,7 @@ export const UsefulLinks = styled.div`
     letter-spacing: 0;
     font-family: ${({ theme }) => theme.fonts.fontPrimary};
     color: ${({ theme }) => theme.colors.col040};
+    text-transform: uppercase;
   }
 
   > div {

@@ -63,6 +63,22 @@ export const ShopToolbarRow = styled.div`
     padding: 8px 10px;
     background-color: transparent;
   }
+
+  @media (max-width: 600px) {
+    display: grid;
+    align-content: space-between;
+    gap: 8px;
+    grid-template-areas: "searchbox searchbox" "filterbox selectbox";
+    > button {
+      grid-area: filterbox;
+    }
+    > div {
+      grid-area: searchbox;
+    }
+    .select {
+      grid-area: selectbox;
+    }
+  }
 `;
 
 export const SearchBox = styled.div`
@@ -70,9 +86,10 @@ export const SearchBox = styled.div`
   align-items: center;
   gap: 8px;
   flex: 1;
-  max-width: 320px;
+  max-width: 600px;
   border: 1px solid ${({ theme }) => theme.colors.col031};
   padding: 8px 10px;
+  width: 100%;
 
   svg {
     color: ${({ theme }) => theme.colors.col032};
