@@ -258,6 +258,13 @@ export const ProductForm = styled.form`
   }
 `;
 
+export const FormBtnBox = styled.div`
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+`;
+
 export const ProductMediaBox = styled.div`
   display: grid;
   gap: 16px;

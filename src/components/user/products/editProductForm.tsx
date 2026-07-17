@@ -2,7 +2,10 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ProductForm } from "@/components/user/products/products.styles";
+import {
+  FormBtnBox,
+  ProductForm,
+} from "@/components/user/products/products.styles";
 import GeneralInformation from "./generalInformation";
 import ProductMedia from "./productMedia";
 import ProductAttributes, { type AttributeValueRow } from "./productAttributes";
@@ -157,7 +160,7 @@ const EditProductForm = ({
         <p style={{ color: "#8B3A2A", fontSize: 13 }}>{submitError}</p>
       )}
 
-      <FlexBox $gap={20} $width="100%" $justify="space-between">
+      <FormBtnBox>
         <Button
           variant="outlined"
           type="button"
@@ -172,22 +175,20 @@ const EditProductForm = ({
               : "Archive product"}
         </Button>
 
-        <FlexBox $gap={20}>
-          <Button
-            variant="outlined"
-            type="button"
-            disabled={isSubmitting}
-            onClick={(e) =>
-              handleSubmit(e as unknown as React.FormEvent, "draft")
-            }
-          >
-            Save as draft
-          </Button>
-          <Button variant="filled-nude" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving…" : "Save changes"}
-          </Button>
-        </FlexBox>
-      </FlexBox>
+        <Button
+          variant="outlined"
+          type="button"
+          disabled={isSubmitting}
+          onClick={(e) =>
+            handleSubmit(e as unknown as React.FormEvent, "draft")
+          }
+        >
+          Save as draft
+        </Button>
+        <Button variant="filled-nude" type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Saving…" : "Save changes"}
+        </Button>
+      </FormBtnBox>
     </ProductForm>
   );
 };
